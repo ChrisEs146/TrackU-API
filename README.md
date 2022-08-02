@@ -1,3 +1,3 @@
-## Backend for the Project Management App
+## TrackU - (BackEnd)
 
-This is the backend for the react project management application. The backend uses Node Js, express and MongoDB
+This repository contains the app's server side code. The backend uses Node Js, express and MongoDB
