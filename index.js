@@ -3,7 +3,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
-dotenv.config();
+import userRoutes from "./routes/users.js";
 
 const app = express();
 app.use(cors());
