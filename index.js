@@ -9,3 +9,6 @@ dotenv.config({ path: "./config.env" });
 const app = express();
 app.use(cors());
 app.use("/user", userRoutes);
+
+const DB_CONNECTION = process.env.MONGO_URL;
+const PORT = process.env.PORT || 5000;
