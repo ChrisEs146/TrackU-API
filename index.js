@@ -8,6 +8,11 @@ dotenv.config({ path: "./config.env" });
 
 const app = express();
 app.use(cors());
+app.use(express.json());
+
+app.use(bodyParser.json({ limit: "30mb", extended: true }));
+app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
+
 app.use("/user", userRoutes);
 
 const DB_CONNECTION = process.env.MONGO_URL;
