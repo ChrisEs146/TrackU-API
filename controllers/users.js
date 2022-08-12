@@ -22,7 +22,7 @@ export const signIn = async (req, res) => {
       { expiresIn: process.env.JWT_EXPIRES_IN }
     );
 
-    res.status(200).json({ result: existingUser, token });
+    res.status(200).json({ existingUser, token });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Something went wrong" });
@@ -50,7 +50,7 @@ export const signUp = async (req, res) => {
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
 
-    res.status(200).json({ result, token });
+      res.status(201).json({ user, token });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Something went wrong" });
