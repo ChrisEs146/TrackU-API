@@ -49,8 +49,10 @@ export const signUp = async (req, res) => {
     // Checking if passwords match
     if (password !== confirmPassword) res.status(400).json({ message: "Passwords do not match" });
 
-    const hashedPassword = await bcrypt.hash(password, 12);
-    const result = await User.create({ email, password: hashedPassword, fullName });
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const user = await User.create({ fullName, email, password: hashedPassword });
 
     const token = jwt.sign({ email: result.email, id: result._id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_IN,
