@@ -37,6 +37,12 @@ export const signIn = async (req, res) => {
 export const signUp = async (req, res) => {
   const { fullName, email, password, confirmPassword } = req.body;
   try {
+    // Checking for possible blank fields
+    if (!fullName || !email || !password || !confirmPassword) {
+      res.status(400).json({ message: "Fields cannot be empty" });
+    }
+
+    // Checking for existing user
     const existingUser = await User.findOne({ email });
     if (existingUser) res.status(400).json({ message: "User already exists" });
 
