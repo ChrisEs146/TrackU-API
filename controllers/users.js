@@ -59,7 +59,11 @@ export const signUp = async (req, res) => {
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
 
+    if (user) {
       res.status(201).json({ user, token });
+    } else {
+      res.status(400).json({ message: "An error occurred creating the user" });
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Something went wrong" });
