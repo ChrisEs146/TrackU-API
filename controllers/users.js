@@ -78,6 +78,12 @@ export const signUp = async (req, res, next) => {
     });
 
     if (user) {
+      res.status(201).json({
+        _id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        token,
+      });
     next(error);
 export const getUser = (req, res, next) => {
     } else {
