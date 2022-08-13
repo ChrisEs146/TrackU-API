@@ -56,7 +56,10 @@ export const signUp = async (req, res, next) => {
 
     // Checking for existing user
     const existingUser = await User.findOne({ email });
-    if (existingUser) res.status(400).json({ message: "User already exists" });
+    if (existingUser) {
+      res.status(400);
+      throw new Error("User already exists.");
+    }
 
     // Checking if passwords match
     if (password !== confirmPassword) res.status(400).json({ message: "Passwords do not match" });
