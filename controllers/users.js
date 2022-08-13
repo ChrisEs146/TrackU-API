@@ -84,7 +84,15 @@ export const signUp = async (req, res, next) => {
         email: user.email,
         token,
       });
+    } else {
+      res.status(400);
+      throw new Error("An error ocurred creating the user.");
+    }
+  } catch (error) {
     next(error);
+  }
+};
+
 export const getUser = (req, res, next) => {
     } else {
       res.status(400).json({ message: "An error occurred creating the user" });
