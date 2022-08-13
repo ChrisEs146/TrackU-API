@@ -50,7 +50,8 @@ export const signUp = async (req, res, next) => {
   try {
     // Checking for possible blank fields
     if (!fullName || !email || !password || !confirmPassword) {
-      res.status(400).json({ message: "Fields cannot be empty" });
+      res.status(400);
+      throw new Error("Fields cannot be empty.");
     }
 
     // Checking for existing user
