@@ -93,12 +93,24 @@ export const signUp = async (req, res, next) => {
   }
 };
 
+/**
+ * Controller to get user's data
+ */
 export const getUser = (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    
+    if (user) {
+      res.json({
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email
+      })
     } else {
-      res.status(400).json({ message: "An error occurred creating the user" });
+      res.status(404);
+      throw new Error("User was not found.")
     }
   } catch (error) {
-    console.error(error);
     next(error);
   }
 };
