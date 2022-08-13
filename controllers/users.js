@@ -62,7 +62,10 @@ export const signUp = async (req, res, next) => {
     }
 
     // Checking if passwords match
-    if (password !== confirmPassword) res.status(400).json({ message: "Passwords do not match" });
+    if (password !== confirmPassword) {
+      res.status(400);
+      throw new Error("Passwords do not match.");
+    }
 
     // Hash password
     const salt = await bcrypt.genSalt(10);
