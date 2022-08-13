@@ -28,7 +28,12 @@ export const signIn = async (req, res, next) => {
       { expiresIn: process.env.JWT_EXPIRES_IN }
     );
 
-    res.status(200).json({ existingUser, token });
+    res.status(200).json({
+      _id: existingUser._id,
+      fullName: existingUser.fullName,
+      email: existingUser.email,
+      token,
+    });
   } catch (error) {
     console.error(error);
     next(error);
