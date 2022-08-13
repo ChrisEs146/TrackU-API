@@ -7,7 +7,7 @@ import User from "../models/user.js";
  * between the user model and the Sign in route.
  * @returns json response with the existing user and token
  */
-export const signIn = async (req, res) => {
+export const signIn = async (req, res, next) => {
   const { email, password } = req.body;
   try {
     const existingUser = await User.findOne({ email });
@@ -25,7 +25,7 @@ export const signIn = async (req, res) => {
     res.status(200).json({ existingUser, token });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Something went wrong" });
+    next(error);
   }
 };
 
@@ -34,7 +34,7 @@ export const signIn = async (req, res) => {
  * between the user model and the sign up route.
  * @returns json response with a new user and its token
  */
-export const signUp = async (req, res) => {
+export const signUp = async (req, res, next) => {
   const { fullName, email, password, confirmPassword } = req.body;
   try {
     // Checking for possible blank fields
@@ -60,12 +60,13 @@ export const signUp = async (req, res) => {
     });
 
     if (user) {
-      res.status(201).json({ user, token });
+    next(error);
+export const getUser = (req, res, next) => {
     } else {
       res.status(400).json({ message: "An error occurred creating the user" });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Something went wrong" });
+    next(error);
   }
 };
