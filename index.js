@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import { errorHandler } from "./middleware/error.js";
 dotenv.config({ path: "./config.env" });
 
 import userRoutes from "./routes/users.js";
@@ -15,6 +16,8 @@ app.use("/user", userRoutes);
 
 const DB_CONNECTION = process.env.MONGO_URL;
 const PORT = process.env.PORT || 5000;
+
+app.use(errorHandler);
 
 mongoose
   .connect(DB_CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true })
