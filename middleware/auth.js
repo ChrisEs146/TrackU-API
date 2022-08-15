@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import user from "../models/user";
+import User from "../models/user.js";
 
 export const auth = async (req, res, next) => {
   let userToken;
@@ -9,7 +9,7 @@ export const auth = async (req, res, next) => {
     try {
       userToken = authHeader.split(" ")[1];
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(userToken, process.env.JWT_SECRET);
 
       req.user = await user.findById(decoded.id).select("-password");
       next();
@@ -20,7 +20,7 @@ export const auth = async (req, res, next) => {
     }
   }
 
-  if (!token) {
+  if (!userToken) {
     res.status(401);
     throw new Error("Token not found");
   }
