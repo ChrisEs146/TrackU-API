@@ -95,19 +95,15 @@ export const signUp = async (req, res, next) => {
 /**
  * Controller to get user's data
  */
-export const getUser = (req, res, next) => {
+export const getUser = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user._id);
-    
+    const user = req.user;
+
     if (user) {
-      res.json({
-        id: user._id,
-        fullName: user.fullName,
-        email: user.email
-      })
+      res.status(200).json(user);
     } else {
       res.status(404);
-      throw new Error("User was not found.")
+      throw new Error("User was not found.");
     }
   } catch (error) {
     next(error);
