@@ -15,11 +15,10 @@ export const auth = async (req, res, next) => {
 
       if (!req.user) {
         res.status(401);
-        throw new Error("Invalid Token");
+        throw new Error("Unauthorized");
       }
       next();
     } catch (error) {
-      console.error(error);
       next(error);
     }
   }
