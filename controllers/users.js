@@ -93,6 +93,32 @@ export const signUp = async (req, res, next) => {
 };
 
 /**
+ * Finds user and updates user's name
+ */
+export const updateUsername = async (req, res, next) => {
+  const { _id, newfullName } = req.body;
+  try {
+    // Checking for possible blank field
+    if (!newfullName) {
+      res.status(400);
+      throw new Error("Fields cannot be empty");
+    }
+
+    // Finding user
+    const existingUser = await User.findById({ _id });
+    if (!existingUser) {
+      res.status(404);
+      throw new Error("User not found.");
+    }
+
+    // Updating user's name
+    await User.findByIdAndUpdate(_id, { ...existingUser, fullName: newfullName });
+    res.status(200).json({ message: "User's name updated successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+/**
  * Controller to get user's data
  */
 export const getUser = async (req, res, next) => {
