@@ -163,6 +163,42 @@ export const updateUserPassword = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Finds a user by email and proceeds to validate
+ * and delete the user
+ */
+export const deleteUser = async (req, res, next) => {
+  const { email, password } = req.body;
+  try {
+    // Checking for possible empty fields
+    if (!email || !password) {
+      res.status(400);
+      throw new Error("Fields cannot be empty");
+    }
+
+    // Finding user
+    const existingUser = await User.findOne({ email });
+    if (!existingUser) {
+      res.status(404);
+      throw new Error("User not found.");
+    }
+
+    // Checking if password is valid
+    const isValidPassword = await bcrypt.compare(password, existingUser.password);
+    if (!isValidPassword) {
+      res.status(400);
+      throw new Error("Invalid Credentials");
+    }
+
+    // Deleting user
+    await User.findOneAndDelete(existingUser);
+    res.status(200).json({ message: "User deleted Successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
 /**
  * Controller to get user's data
  */
