@@ -118,6 +118,51 @@ export const updateUsername = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Finds user and validates current password, then proceeds to hash
+ * and update new password.
+ */
+export const updateUserPassword = async (req, res, next) => {
+  const { _id, currentPassword, newPassword, confirmPassword } = req.body;
+  try {
+    // Checking for possible blank fields
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      res.status(400);
+      throw new Error("Fields cannot be empty");
+    }
+
+    // Finding user
+    const existingUser = await User.findById(_id);
+    if (!existingUser) {
+      res.status(404);
+      throw new Error("User not found.");
+    }
+
+    // Checking if passwords match
+    if (newPassword !== confirmPassword) {
+      res.status(400);
+      throw new Error("Passwords do not match.");
+    }
+
+    // Checking if current password is valid
+    const isValidPassword = await bcrypt.compare(currentPassword, existingUser.password);
+    if (!isValidPassword) {
+      res.status(400);
+      throw new Error("Invalid Password");
+    }
+
+    // Hashing new password
+    const salt = await bcrypt.getSalt(10);
+    const newHashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Updating user's password
+    await User.findByIdAndUpdate(_id, { ...existingUser, password: newHashedPassword });
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
 /**
  * Controller to get user's data
  */
