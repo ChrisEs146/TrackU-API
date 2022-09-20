@@ -14,5 +14,6 @@ router.post("/signin", signIn);
 router.post("/signup", signUp);
 router.get("/info", auth, getUser);
 router.patch("/user-update", auth, updateUsername);
+router.patch("/update-password", auth, updateUserPassword);
 
 export default router;
