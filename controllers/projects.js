@@ -72,3 +72,53 @@ export const getProject = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Controller to update a project based on its ID.
+ * @route PUT /projects/:projectId
+ * @access Private
+ */
+export const updateProject = async (req, res, next) => {
+  const { title, status, progress, description } = req.body;
+  const { projectId } = req.params;
+
+  try {
+    // Finding project
+    const project = await Project.findById(projectId);
+
+    // Checking if project is valid
+    if (!project) {
+      res.status(404);
+      throw new Error("Project not found");
+    }
+
+    // Validating project's owner
+    if (!req.user || project.user.toString() !== req.user.id) {
+      res.status(401);
+      throw new Error("User not authorized");
+    }
+
+    // Checking for empty fields
+    if (!title || !status || !progress || !description) {
+      res.status(400);
+      throw new Error("Fields cannot be empty");
+    }
+
+    // Updating the project
+    const updatedProject = await Project.findByIdAndUpdate(
+      projectId,
+      {
+        title: title,
+        status: status,
+        progress: progress,
+        description: description,
+      },
+      { new: true }
+    );
+
+    // Sending a response with the updated project
+    res.status(200).json(updatedProject);
+  } catch (error) {
+    next(error);
+  }
+};
