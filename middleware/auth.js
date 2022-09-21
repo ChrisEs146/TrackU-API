@@ -5,8 +5,8 @@ export const auth = async (req, res, next) => {
   let userToken;
   const authHeader = req.headers.authorization;
 
-  if (authHeader && authHeader.startsWith("Bearer")) {
-    try {
+  try {
+    if (authHeader && authHeader.startsWith("Bearer")) {
       userToken = authHeader.split(" ")[1];
 
       const decoded = jwt.verify(userToken, process.env.JWT_SECRET);
@@ -18,13 +18,13 @@ export const auth = async (req, res, next) => {
         throw new Error("Unauthorized");
       }
       next();
-    } catch (error) {
-      next(error);
     }
-  }
 
-  if (!userToken) {
-    res.status(401);
-    throw new Error("Token not found");
+    if (!userToken) {
+      res.status(401);
+      throw new Error("Token not found");
+    }
+  } catch (error) {
+    next(error);
   }
 };
