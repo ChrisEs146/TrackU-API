@@ -159,7 +159,7 @@ export const updateUserPassword = async (req, res, next) => {
     const newHashedPassword = await bcrypt.hash(newPassword, salt);
 
     // Updating user's password
-    await User.findByIdAndUpdate(_id, { ...existingUser, password: newHashedPassword });
+    await User.findByIdAndUpdate(_id, { password: newHashedPassword });
     res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
     next(error);
