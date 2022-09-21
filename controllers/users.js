@@ -93,6 +93,117 @@ export const signUp = async (req, res, next) => {
 };
 
 /**
+ * Finds user and updates user's name
+ */
+export const updateUsername = async (req, res, next) => {
+  const { _id, newFullName } = req.body;
+  try {
+    // Checking for possible blank field
+    if (!newFullName) {
+      res.status(400);
+      throw new Error("Fields cannot be empty");
+    }
+
+    // Finding user
+    const existingUser = await User.findById({ _id });
+    if (!existingUser) {
+      res.status(404);
+      throw new Error("User not found.");
+    }
+
+    // Updating user's name
+    const updatedUser = await User.findByIdAndUpdate(_id, { fullName: newFullName }, { new: true });
+    res
+      .status(200)
+      .json({ _id: updatedUser._id, fullName: updatedUser.fullName, email: updatedUser.email });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Finds user and validates current password, then proceeds to hash
+ * and update new password.
+ */
+export const updateUserPassword = async (req, res, next) => {
+  const { _id, currentPassword, newPassword, confirmPassword } = req.body;
+  try {
+    // Checking for possible blank fields
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      res.status(400);
+      throw new Error("Fields cannot be empty");
+    }
+
+    // Finding user
+    const existingUser = await User.findById(_id);
+    if (!existingUser) {
+      res.status(404);
+      throw new Error("User not found.");
+    }
+
+    // Checking if passwords match
+    if (newPassword !== confirmPassword) {
+      res.status(400);
+      throw new Error("Passwords do not match.");
+    }
+
+    // Checking if current password is valid
+    const isValidPassword = await bcrypt.compare(currentPassword, existingUser.password);
+    if (!isValidPassword) {
+      res.status(400);
+      throw new Error("Invalid Password");
+    }
+
+    // Hashing new password
+    const salt = await bcrypt.genSalt(10);
+    const newHashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Updating user's password
+    await User.findByIdAndUpdate(_id, { password: newHashedPassword });
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Finds a user by email and proceeds to validate
+ * and delete the user
+ */
+export const deleteUser = async (req, res, next) => {
+  const { email, password } = req.body;
+  try {
+    // Checking for possible empty fields
+    if (!email || !password) {
+      res.status(400);
+      throw new Error("Fields cannot be empty");
+    }
+
+    // Finding user
+    const existingUser = await User.findOne({ email });
+    if (!existingUser) {
+      res.status(404);
+      throw new Error("User not found.");
+    }
+
+    // Checking if password is valid
+    const isValidPassword = await bcrypt.compare(password, existingUser.password);
+    if (!isValidPassword) {
+      res.status(400);
+      throw new Error("Invalid Credentials");
+    }
+
+    // Deleting user
+    const deletedUser = await User.findOneAndDelete({ email });
+    res
+      .status(200)
+      .json({ _id: deletedUser._id, fullName: deletedUser.fullName, email: deletedUser.email });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * Controller to get user's data
  */
 export const getUser = async (req, res, next) => {
