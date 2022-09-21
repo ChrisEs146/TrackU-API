@@ -14,6 +14,7 @@ app.use(express.json({ limit: "30mb", extended: true }));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
 
 app.use("/user", userRoutes);
+app.use("/projects", projectRoutes);
 
 const DB_CONNECTION = process.env.MONGO_URL;
 const PORT = process.env.PORT || 5000;
