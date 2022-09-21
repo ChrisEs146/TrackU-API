@@ -122,3 +122,36 @@ export const updateProject = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Controller to delete a project based on its ID.
+ * @route DELETE /projects/:projectId
+ * @access Private
+ */
+export const deleteProject = async (req, res, next) => {
+  const { projectId } = req.params;
+
+  try {
+    // Finding project
+    const project = await Project.findById(projectId);
+
+    // Checking if project exists
+    if (!project) {
+      res.status(404);
+      throw new Error("Project not found");
+    }
+
+    // Validating project's owner
+    if (!req.user || project.user.toString() !== req.user.id) {
+      res.status(401);
+      throw new Error("User not authorized");
+    }
+
+    // Deleting the project
+    await project.remove();
+    // Sending a response with a confirmation
+    res.status(200).json({ message: "Project was deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
