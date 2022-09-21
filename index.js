@@ -6,6 +6,7 @@ import { errorHandler } from "./middleware/error.js";
 dotenv.config({ path: "./config.env" });
 
 import userRoutes from "./routes/users.js";
+import projectRoutes from "./routes/projects.js";
 
 const app = express();
 app.use(cors());
