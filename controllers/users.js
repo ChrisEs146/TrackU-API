@@ -96,10 +96,10 @@ export const signUp = async (req, res, next) => {
  * Finds user and updates user's name
  */
 export const updateUsername = async (req, res, next) => {
-  const { _id, newfullName } = req.body;
+  const { _id, newFullName } = req.body;
   try {
     // Checking for possible blank field
-    if (!newfullName) {
+    if (!newFullName) {
       res.status(400);
       throw new Error("Fields cannot be empty");
     }
