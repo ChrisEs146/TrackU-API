@@ -194,8 +194,9 @@ export const deleteUser = async (req, res, next) => {
     }
 
     // Deleting user
-    await User.findOneAndDelete(existingUser);
-    res.status(200).json({ message: "User deleted Successfully" });
+    res
+      .status(200)
+      .json({ _id: deletedUser._id, fullName: deletedUser.fullName, email: deletedUser.email });
   } catch (error) {
     next(error);
   }
