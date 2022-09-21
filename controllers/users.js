@@ -112,8 +112,9 @@ export const updateUsername = async (req, res, next) => {
     }
 
     // Updating user's name
-    await User.findByIdAndUpdate(_id, { ...existingUser, fullName: newfullName });
-    res.status(200).json({ message: "User's name updated successfully" });
+    res
+      .status(200)
+      .json({ _id: updatedUser._id, fullName: updatedUser.fullName, email: updatedUser.email });
   } catch (error) {
     next(error);
   }
