@@ -123,3 +123,35 @@ export const modifyUpdate = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Controller to delete a project's update based
+ * on its ID.
+ * @route DELETE /updates/:updateId
+ * @access Private
+ */
+export const deleteUpdate = async (req, res, next) => {
+  const { projectId } = req.params;
+  const { updateId } = req.params;
+
+  try {
+    // Finding update
+    const update = await Update.findById(updateId);
+    if (!update) {
+      res.status(404);
+      throw new Error("Update not found");
+    }
+
+    // Checking if project ID matches
+    if (update.project.toString() !== projectId) {
+      res.status(400);
+      throw new Error("Unauthorized Update");
+    }
+
+    // Deleting update
+    await update.remove();
+    res.status(200).json({ message: "Updated was deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
