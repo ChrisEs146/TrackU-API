@@ -3,9 +3,10 @@ import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 
 /**
- *  Handles the user's sign in logic, and creates a connection
- * between the user model and the Sign in route.
- * @returns json response with the existing user and token
+ * Controller to sign in a user.
+ * @route POST /users/signin
+ * @access Public
+ *
  */
 export const signIn = async (req, res, next) => {
   const { email, password } = req.body;
@@ -40,9 +41,9 @@ export const signIn = async (req, res, next) => {
 };
 
 /**
- * Handles the user's sign up logic, and creates a connection
- * between the user model and the sign up route.
- * @returns json response with a new user and its token
+ * Controller to sign up a user.
+ * @route POST /users/signup
+ * @access Public
  */
 export const signUp = async (req, res, next) => {
   const { fullName, email, password, confirmPassword } = req.body;
@@ -93,7 +94,9 @@ export const signUp = async (req, res, next) => {
 };
 
 /**
- * Finds user and updates user's name
+ * Controller to update a user's name.
+ * @route PATCH /users/update-user
+ * @access Private
  */
 export const updateUsername = async (req, res, next) => {
   const { _id, newFullName } = req.body;
@@ -122,8 +125,9 @@ export const updateUsername = async (req, res, next) => {
 };
 
 /**
- * Finds user and validates current password, then proceeds to hash
- * and update new password.
+ * Controller to update a user's password.
+ * @route PATCH /uses/update-password
+ * @access Private
  */
 export const updateUserPassword = async (req, res, next) => {
   const { _id, currentPassword, newPassword, confirmPassword } = req.body;
@@ -167,8 +171,9 @@ export const updateUserPassword = async (req, res, next) => {
 };
 
 /**
- * Finds a user by email and proceeds to validate
- * and delete the user
+ * Controller to delete a user.
+ * @route DELETE /users/delete-user
+ * @access Private
  */
 export const deleteUser = async (req, res, next) => {
   const { email, password } = req.body;
@@ -205,6 +210,8 @@ export const deleteUser = async (req, res, next) => {
 
 /**
  * Controller to get user's data
+ * @route GET /users/info
+ * @access Private
  */
 export const getUser = async (req, res, next) => {
   try {
