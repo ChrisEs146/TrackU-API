@@ -45,3 +45,38 @@ export const addUpdate = async (req, res, next) => {
   }
 };
 
+/**
+ * Controller to get an update from a project
+ * based on its ID.
+ * @route GET /updates/:updateId
+ * @access Private
+ */
+export const getUpdate = async (req, res, next) => {
+  const { projectId } = req.params;
+  const { updateId } = req.params;
+
+  try {
+    // Finding update
+    const update = await Update.findById(updateId);
+    if (!update) {
+      res.status(404);
+      throw new Error("Update not found");
+    }
+
+    // Checking if project ID matches
+    if (projectId !== update.project.toString()) {
+      res.status(400);
+      throw new Error("Unauthorized Update");
+    }
+
+    // Sending update
+    res.status(200).json({
+      id: update._id,
+      title: update.title,
+      description: update.description,
+      added: update.createdAt,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
