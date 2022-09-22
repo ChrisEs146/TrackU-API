@@ -3,10 +3,10 @@ import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import { errorHandler } from "./middleware/error.js";
-dotenv.config({ path: "./config.env" });
-
 import userRoutes from "./routes/users.js";
 import projectRoutes from "./routes/projects.js";
+import updateRoutes from "./routes/updates.js";
+dotenv.config({ path: "./config.env" });
 
 const app = express();
 app.use(cors());
