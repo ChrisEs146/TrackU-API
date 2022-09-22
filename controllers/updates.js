@@ -80,3 +80,46 @@ export const getUpdate = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Controller to modify or update a project's update.
+ * @route POST /updates/:updateId
+ * @access Private
+ */
+export const modifyUpdate = async (req, res, next) => {
+  const { title, description } = req.body;
+  const { projectId } = req.params;
+  const { updateId } = req.params;
+
+  try {
+    // Finding update
+    const update = await Update.findById(updateId);
+    if (!update) {
+      res.status(404);
+      throw new Error("Update not found");
+    }
+
+    // Checking if project ID matches
+    if (update.project.toString() !== projectId) {
+      res.status(400);
+      throw new Error("Unauthorized Update");
+    }
+
+    // Checking for empty fields
+    if (!title || !description) {
+      res.status(400);
+      throw new Error("Field cannot be empty");
+    }
+
+    // Updating the project's update
+    const modifiedUpdate = await Update.findByIdAndUpdate(
+      updateId,
+      { title: title, description: description },
+      { new: true }
+    );
+
+    res.status(200).json(modifiedUpdate);
+  } catch (error) {
+    next(error);
+  }
+};
