@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Project from "../models/project.js";
 
 /**
@@ -51,10 +52,14 @@ export const getProject = async (req, res, next) => {
   const { projectId } = req.params;
 
   try {
+    // Checking if project ID is valid
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+      res.status(400);
+      throw new Error("Project ID is not valid");
+    }
+
     // Finding project
     const project = await Project.findById(projectId);
-
-    // Checking if project is valid
     if (!project) {
       res.status(404);
       throw new Error("Project not found");
@@ -83,10 +88,14 @@ export const updateProject = async (req, res, next) => {
   const { projectId } = req.params;
 
   try {
+    // Checking if project ID is valid
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+      res.status(400);
+      throw new Error("Project ID is not valid");
+    }
+
     // Finding project
     const project = await Project.findById(projectId);
-
-    // Checking if project is valid
     if (!project) {
       res.status(404);
       throw new Error("Project not found");
@@ -132,10 +141,14 @@ export const deleteProject = async (req, res, next) => {
   const { projectId } = req.params;
 
   try {
+    // Checking i f project ID is alid
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+      res.status(400);
+      throw new Error("Project ID is not valid");
+    }
+
     // Finding project
     const project = await Project.findById(projectId);
-
-    // Checking if project exists
     if (!project) {
       res.status(404);
       throw new Error("Project not found");
