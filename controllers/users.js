@@ -123,7 +123,8 @@ export const updateUsername = async (req, res, next) => {
  * @access Private
  */
 export const updateUserPassword = async (req, res, next) => {
-  const { _id, currentPassword, newPassword, confirmPassword } = req.body;
+  const { currentPassword, newPassword, confirmPassword } = req.body;
+  const userId = req.user.id;
   try {
     // Checking for possible blank fields
     if (!currentPassword || !newPassword || !confirmPassword) {
@@ -132,7 +133,7 @@ export const updateUserPassword = async (req, res, next) => {
     }
 
     // Finding user
-    const existingUser = await User.findById(_id);
+    const existingUser = await User.findById(userId);
     if (!existingUser) {
       res.status(404);
       throw new Error("User not found.");
@@ -156,7 +157,7 @@ export const updateUserPassword = async (req, res, next) => {
     const newHashedPassword = await bcrypt.hash(newPassword, salt);
 
     // Updating user's password
-    await User.findByIdAndUpdate(_id, { password: newHashedPassword });
+    await User.findByIdAndUpdate(userId, { password: newHashedPassword });
     res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
     next(error);
