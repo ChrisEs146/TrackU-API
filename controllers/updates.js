@@ -1,4 +1,6 @@
 import Update from "../models/update.js";
+import Project from "../models/project.js";
+import mongoose from "mongoose";
 
 /**
  * Controller to get all updates from a project.
