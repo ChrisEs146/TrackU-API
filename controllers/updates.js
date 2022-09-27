@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 
 /**
  * Controller to get all updates from a project.
- * @route GET /updates
+ * @route GET /updates/:projectId
  * @access Private
  */
 export const getUpdates = async (req, res, next) => {
@@ -21,7 +21,7 @@ export const getUpdates = async (req, res, next) => {
 
 /**
  * Controller to add an update to a project.
- * @route POST /upddates
+ * @route POST /updates/:projectId
  * @access Private
  */
 export const addUpdate = async (req, res, next) => {
@@ -50,7 +50,7 @@ export const addUpdate = async (req, res, next) => {
 /**
  * Controller to get an update from a project
  * based on its ID.
- * @route GET /updates/:updateId
+ * @route GET /updates/project/:projectId/update/:updateId
  * @access Private
  */
 export const getUpdate = async (req, res, next) => {
@@ -85,7 +85,7 @@ export const getUpdate = async (req, res, next) => {
 
 /**
  * Controller to modify or update a project's update.
- * @route POST /updates/:updateId
+ * @route POST /updates/project/:projectId/update/:updateId
  * @access Private
  */
 export const modifyUpdate = async (req, res, next) => {
@@ -129,7 +129,7 @@ export const modifyUpdate = async (req, res, next) => {
 /**
  * Controller to delete a project's update based
  * on its ID.
- * @route DELETE /updates/:updateId
+ * @route DELETE /updates/project/:projectId/update/:updateId
  * @access Private
  */
 export const deleteUpdate = async (req, res, next) => {
