@@ -3,9 +3,10 @@ import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 
 /**
- *  Handles the user's sign in logic, and creates a connection
- * between the user model and the Sign in route.
- * @returns json response with the existing user and token
+ * Controller to sign in a user.
+ * @route POST /users/signin
+ * @access Public
+ *
  */
 export const signIn = async (req, res, next) => {
   const { email, password } = req.body;
@@ -40,9 +41,9 @@ export const signIn = async (req, res, next) => {
 };
 
 /**
- * Handles the user's sign up logic, and creates a connection
- * between the user model and the sign up route.
- * @returns json response with a new user and its token
+ * Controller to sign up a user.
+ * @route POST /users/signup
+ * @access Public
  */
 export const signUp = async (req, res, next) => {
   const { fullName, email, password, confirmPassword } = req.body;
@@ -76,27 +77,25 @@ export const signUp = async (req, res, next) => {
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
 
-    if (user) {
-      res.status(201).json({
-        _id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        token,
-      });
-    } else {
-      res.status(400);
-      throw new Error("An error ocurred creating the user.");
-    }
+    res.status(201).json({
+      _id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      token,
+    });
   } catch (error) {
     next(error);
   }
 };
 
 /**
- * Finds user and updates user's name
+ * Controller to update a user's name.
+ * @route PATCH /users/update-user
+ * @access Private
  */
 export const updateUsername = async (req, res, next) => {
-  const { _id, newFullName } = req.body;
+  const { newFullName } = req.body;
+  const userId = req.user.id;
   try {
     // Checking for possible blank field
     if (!newFullName) {
@@ -104,15 +103,12 @@ export const updateUsername = async (req, res, next) => {
       throw new Error("Fields cannot be empty");
     }
 
-    // Finding user
-    const existingUser = await User.findById({ _id });
-    if (!existingUser) {
-      res.status(404);
-      throw new Error("User not found.");
-    }
-
     // Updating user's name
-    const updatedUser = await User.findByIdAndUpdate(_id, { fullName: newFullName }, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { fullName: newFullName },
+      { new: true }
+    );
     res
       .status(200)
       .json({ _id: updatedUser._id, fullName: updatedUser.fullName, email: updatedUser.email });
@@ -122,11 +118,13 @@ export const updateUsername = async (req, res, next) => {
 };
 
 /**
- * Finds user and validates current password, then proceeds to hash
- * and update new password.
+ * Controller to update a user's password.
+ * @route PATCH /uses/update-password
+ * @access Private
  */
 export const updateUserPassword = async (req, res, next) => {
-  const { _id, currentPassword, newPassword, confirmPassword } = req.body;
+  const { currentPassword, newPassword, confirmPassword } = req.body;
+  const userId = req.user.id;
   try {
     // Checking for possible blank fields
     if (!currentPassword || !newPassword || !confirmPassword) {
@@ -135,7 +133,7 @@ export const updateUserPassword = async (req, res, next) => {
     }
 
     // Finding user
-    const existingUser = await User.findById(_id);
+    const existingUser = await User.findById(userId);
     if (!existingUser) {
       res.status(404);
       throw new Error("User not found.");
@@ -159,7 +157,7 @@ export const updateUserPassword = async (req, res, next) => {
     const newHashedPassword = await bcrypt.hash(newPassword, salt);
 
     // Updating user's password
-    await User.findByIdAndUpdate(_id, { password: newHashedPassword });
+    await User.findByIdAndUpdate(userId, { password: newHashedPassword });
     res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
     next(error);
@@ -167,11 +165,14 @@ export const updateUserPassword = async (req, res, next) => {
 };
 
 /**
- * Finds a user by email and proceeds to validate
- * and delete the user
+ * Controller to delete a user.
+ * @route DELETE /users/delete-user
+ * @access Private
  */
 export const deleteUser = async (req, res, next) => {
   const { email, password } = req.body;
+  const userId = req.user.id;
+
   try {
     // Checking for possible empty fields
     if (!email || !password) {
@@ -184,6 +185,11 @@ export const deleteUser = async (req, res, next) => {
     if (!existingUser) {
       res.status(404);
       throw new Error("User not found.");
+    }
+
+    if (existingUser.id !== userId) {
+      res.status(401);
+      throw new Error("User not authorized");
     }
 
     // Checking if password is valid
@@ -205,17 +211,13 @@ export const deleteUser = async (req, res, next) => {
 
 /**
  * Controller to get user's data
+ * @route GET /users/info
+ * @access Private
  */
 export const getUser = async (req, res, next) => {
   try {
     const user = req.user;
-
-    if (user) {
-      res.status(200).json(user);
-    } else {
-      res.status(404);
-      throw new Error("User was not found.");
-    }
+    res.status(200).json(user);
   } catch (error) {
     next(error);
   }
