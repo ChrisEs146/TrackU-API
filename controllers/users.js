@@ -217,13 +217,7 @@ export const deleteUser = async (req, res, next) => {
 export const getUser = async (req, res, next) => {
   try {
     const user = req.user;
-
-    if (user) {
-      res.status(200).json(user);
-    } else {
-      res.status(404);
-      throw new Error("User was not found.");
-    }
+    res.status(200).json(user);
   } catch (error) {
     next(error);
   }
