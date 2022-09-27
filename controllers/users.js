@@ -94,7 +94,8 @@ export const signUp = async (req, res, next) => {
  * @access Private
  */
 export const updateUsername = async (req, res, next) => {
-  const { _id, newFullName } = req.body;
+  const { newFullName } = req.body;
+  const userId = req.user.id;
   try {
     // Checking for possible blank field
     if (!newFullName) {
@@ -102,15 +103,12 @@ export const updateUsername = async (req, res, next) => {
       throw new Error("Fields cannot be empty");
     }
 
-    // Finding user
-    const existingUser = await User.findById({ _id });
-    if (!existingUser) {
-      res.status(404);
-      throw new Error("User not found.");
-    }
-
     // Updating user's name
-    const updatedUser = await User.findByIdAndUpdate(_id, { fullName: newFullName }, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { fullName: newFullName },
+      { new: true }
+    );
     res
       .status(200)
       .json({ _id: updatedUser._id, fullName: updatedUser.fullName, email: updatedUser.email });
