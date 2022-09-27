@@ -133,12 +133,31 @@ export const getUpdate = async (req, res, next) => {
  * @route POST /updates/project/:projectId/update/:updateId
  * @access Private
  */
-export const modifyUpdate = async (req, res, next) => {
+export const editUpdate = async (req, res, next) => {
   const { title, description } = req.body;
   const { projectId } = req.params;
   const { updateId } = req.params;
 
   try {
+    // Checking if project ID is valid
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+      res.status(400);
+      throw new Error("Project ID is not valid");
+    }
+
+    // Checking if update ID is valid
+    if (!mongoose.Types.ObjectId.isValid(updateId)) {
+      res.status(400);
+      throw new Error("Update ID is not valid");
+    }
+
+    // Finding parent project
+    const parentProject = await Project.findById(projectId);
+    if (!parentProject) {
+      res.status(404);
+      throw new Error("Parent project not found");
+    }
+
     // Finding update
     const update = await Update.findById(updateId);
     if (!update) {
