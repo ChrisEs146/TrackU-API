@@ -171,6 +171,8 @@ export const updateUserPassword = async (req, res, next) => {
  */
 export const deleteUser = async (req, res, next) => {
   const { email, password } = req.body;
+  const userId = req.user.id;
+
   try {
     // Checking for possible empty fields
     if (!email || !password) {
@@ -183,6 +185,11 @@ export const deleteUser = async (req, res, next) => {
     if (!existingUser) {
       res.status(404);
       throw new Error("User not found.");
+    }
+
+    if (existingUser.id !== userId) {
+      res.status(401);
+      throw new Error("User not authorized");
     }
 
     // Checking if password is valid
