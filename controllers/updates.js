@@ -39,9 +39,22 @@ export const getUpdates = async (req, res, next) => {
  */
 export const addUpdate = async (req, res, next) => {
   const { title, description } = req.body;
-  const { projectId } = req.body;
+  const { projectId } = req.params;
 
   try {
+    // Checking if project ID is valid
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+      res.status(400);
+      throw new Error("Project ID is not valid");
+    }
+
+    // Finding parent project
+    const parentProject = await Project.findById(projectId);
+    if (!parentProject) {
+      res.status(404);
+      throw new Error("Parent project not found");
+    }
+
     // Checking for empty fields
     if (!title || !description) {
       res.status(400);
