@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json({ limit: "30mb", extended: true }));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
 
-app.use("/user", userRoutes);
+app.use("/users", userRoutes);
 app.use("/projects", projectRoutes);
 app.use("/updates", updateRoutes);
 
