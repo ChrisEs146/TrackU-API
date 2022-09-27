@@ -11,7 +11,20 @@ export const getUpdates = async (req, res, next) => {
   const { projectId } = req.params;
 
   try {
-    // Extracting updates from project
+    // Checking if project ID is valid
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+      res.status(400);
+      throw new Error("Project ID is not valid");
+    }
+
+    // Finding parent project
+    const parentProject = await Project.findById(projectId);
+    if (!parentProject) {
+      res.status(404);
+      throw new Error("Parent project not found");
+    }
+
+    // Getting updates from project
     const updates = await Update.find({ project: projectId });
     res.status(200).json(updates);
   } catch (error) {
