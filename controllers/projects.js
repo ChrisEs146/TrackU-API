@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Project from "../models/project.js";
+import User from "../models/user.js";
 
 /**
  * Controller to get all projects from a user.
@@ -9,7 +10,7 @@ import Project from "../models/project.js";
 export const getAllProjects = async (req, res, next) => {
   try {
     // Finding all projects
-    const projects = await Project.find({ user: req.user.id });
+    const projects = await Project.find({ user: req.user._id }).lean().exec();
 
     // Sending a response with all projects
     res.status(200).json(projects);
@@ -25,7 +26,7 @@ export const getAllProjects = async (req, res, next) => {
  */
 export const addProject = async (req, res, next) => {
   const { title, description } = req.body;
-  const { id } = req.user;
+  const { _id } = req.user;
 
   try {
     // Checking for empty fields
@@ -34,8 +35,14 @@ export const addProject = async (req, res, next) => {
       throw new Error("Fields cannot be empty");
     }
 
+    const user = await User.findById(_id).lean().exec();
+    if (!user) {
+      res.status(404);
+      throw new Error("User not found");
+    }
+
     //  Creating project and sending response
-    const project = await Project.create({ user: id, title: title, description: description });
+    const project = await Project.create({ user: _id, title: title, description: description });
     res.status(200).json(project);
   } catch (error) {
     next(error);
@@ -59,14 +66,14 @@ export const getProject = async (req, res, next) => {
     }
 
     // Finding project
-    const project = await Project.findById(projectId);
+    const project = await Project.findById(projectId).lean().exec();
     if (!project) {
       res.status(404);
       throw new Error("Project not found");
     }
 
     // Validating project's owner
-    if (!req.user || project.user.toString() !== req.user.id) {
+    if (!req.user || project.user.toString() !== req.user._id) {
       res.status(401);
       throw new Error("User not authorized");
     }
@@ -95,14 +102,14 @@ export const updateProject = async (req, res, next) => {
     }
 
     // Finding project
-    const project = await Project.findById(projectId);
+    const project = await Project.findById(projectId).exec();
     if (!project) {
       res.status(404);
       throw new Error("Project not found");
     }
 
     // Validating project's owner
-    if (!req.user || project.user.toString() !== req.user.id) {
+    if (!req.user || project.user.toString() !== req.user._id) {
       res.status(401);
       throw new Error("User not authorized");
     }
@@ -114,16 +121,11 @@ export const updateProject = async (req, res, next) => {
     }
 
     // Updating the project
-    const updatedProject = await Project.findByIdAndUpdate(
-      projectId,
-      {
-        title: title,
-        status: status,
-        progress: progress,
-        description: description,
-      },
-      { new: true }
-    );
+    project.title = title;
+    project.status = status;
+    project.progress = progress;
+    project.description = description;
+    const updatedProject = await project.save();
 
     // Sending a response with the updated project
     res.status(200).json(updatedProject);
@@ -148,14 +150,14 @@ export const deleteProject = async (req, res, next) => {
     }
 
     // Finding project
-    const project = await Project.findById(projectId);
+    const project = await Project.findById(projectId).exec();
     if (!project) {
       res.status(404);
       throw new Error("Project not found");
     }
 
     // Validating project's owner
-    if (!req.user || project.user.toString() !== req.user.id) {
+    if (!req.user || project.user.toString() !== req.user._id) {
       res.status(401);
       throw new Error("User not authorized");
     }
