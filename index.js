@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 import { errorHandler } from "./middleware/error.js";
 import userRoutes from "./routes/users.js";
 import projectRoutes from "./routes/projects.js";
@@ -9,7 +10,8 @@ import updateRoutes from "./routes/updates.js";
 dotenv.config({ path: "./config.env" });
 
 const app = express();
-app.use(cors());
+app.use(cookieParser());
+app.use(cors({ origin: process.env.ORIGIN, credentials: true }));
 app.use(express.json({ limit: "30mb", extended: true }));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
 
