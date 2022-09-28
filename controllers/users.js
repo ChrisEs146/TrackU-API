@@ -1,40 +1,49 @@
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import User from "../models/user.js";
+import Jwt from "jsonwebtoken";
+import { createToken } from "../utils/tokenCreator.js";
 
 /**
  * Controller to sign in a user.
  * @route POST /users/signin
  * @access Public
- *
  */
 export const signIn = async (req, res, next) => {
   const { email, password } = req.body;
   try {
-    const existingUser = await User.findOne({ email });
+    // Checking for possible blank fields
+    if (!email || !password) {
+      res.status(400);
+      throw new Error("Fields cannot be empty.");
+    }
+
+    // Finding user
+    const existingUser = await User.findOne({ email }).lean().exec();
     if (!existingUser) {
       res.status(404);
       throw new Error("User does not exist.");
     }
 
+    // Checking for valid password
     const isValidPassword = await bcrypt.compare(password, existingUser.password);
     if (!isValidPassword) {
       res.status(400);
       throw new Error("Invalid Credentials");
     }
 
-    const token = jwt.sign(
-      { email: existingUser.email, id: existingUser._id },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+    // Creating tokens
+    const Accesstoken = createToken(existingUser._id, existingUser.fullName, existingUser.email);
+    const Refreshtoken = createToken(
+      existingUser._id,
+      existingUser.fullName,
+      existingUser.email,
+      true
     );
 
-    res.status(200).json({
-      _id: existingUser._id,
-      fullName: existingUser.fullName,
-      email: existingUser.email,
-      token,
-    });
+    res
+      .status(200)
+      .cookie("token", Refreshtoken, { httpOnly: true, sameSite: "None", secure: true })
+      .json({ Accesstoken });
   } catch (error) {
     next(error);
   }
@@ -55,7 +64,7 @@ export const signUp = async (req, res, next) => {
     }
 
     // Checking for existing user
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email }).lean().exec();
     if (existingUser) {
       res.status(400);
       throw new Error("User already exists.");
@@ -72,16 +81,10 @@ export const signUp = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, salt);
     const user = await User.create({ fullName, email, password: hashedPassword });
 
-    // Creating token
-    const token = jwt.sign({ email: user.email, id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRES_IN,
-    });
-
     res.status(201).json({
       _id: user._id,
       fullName: user.fullName,
       email: user.email,
-      token,
     });
   } catch (error) {
     next(error);
@@ -95,7 +98,7 @@ export const signUp = async (req, res, next) => {
  */
 export const updateUsername = async (req, res, next) => {
   const { newFullName } = req.body;
-  const userId = req.user.id;
+  const userId = req.user._id;
   try {
     // Checking for possible blank field
     if (!newFullName) {
@@ -103,12 +106,17 @@ export const updateUsername = async (req, res, next) => {
       throw new Error("Fields cannot be empty");
     }
 
+    // Finding user
+    const existingUser = await User.findById(userId).exec();
+    if (!existingUser) {
+      res.status(404);
+      throw new Error("User not found");
+    }
+
     // Updating user's name
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { fullName: newFullName },
-      { new: true }
-    );
+    existingUser.fullName = newFullName;
+    const updatedUser = await existingUser.save();
+
     res
       .status(200)
       .json({ _id: updatedUser._id, fullName: updatedUser.fullName, email: updatedUser.email });
@@ -124,7 +132,7 @@ export const updateUsername = async (req, res, next) => {
  */
 export const updateUserPassword = async (req, res, next) => {
   const { currentPassword, newPassword, confirmPassword } = req.body;
-  const userId = req.user.id;
+  const userId = req.user._id;
   try {
     // Checking for possible blank fields
     if (!currentPassword || !newPassword || !confirmPassword) {
@@ -133,7 +141,7 @@ export const updateUserPassword = async (req, res, next) => {
     }
 
     // Finding user
-    const existingUser = await User.findById(userId);
+    const existingUser = await User.findById(userId).exec();
     if (!existingUser) {
       res.status(404);
       throw new Error("User not found.");
@@ -157,7 +165,9 @@ export const updateUserPassword = async (req, res, next) => {
     const newHashedPassword = await bcrypt.hash(newPassword, salt);
 
     // Updating user's password
-    await User.findByIdAndUpdate(userId, { password: newHashedPassword });
+    existingUser.password = newHashedPassword;
+    await existingUser.save();
+
     res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
     next(error);
@@ -171,7 +181,7 @@ export const updateUserPassword = async (req, res, next) => {
  */
 export const deleteUser = async (req, res, next) => {
   const { email, password } = req.body;
-  const userId = req.user.id;
+  const userId = req.user._id;
 
   try {
     // Checking for possible empty fields
@@ -181,7 +191,7 @@ export const deleteUser = async (req, res, next) => {
     }
 
     // Finding user
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email }).exec();
     if (!existingUser) {
       res.status(404);
       throw new Error("User not found.");
@@ -200,7 +210,7 @@ export const deleteUser = async (req, res, next) => {
     }
 
     // Deleting user
-    const deletedUser = await User.findOneAndDelete({ email });
+    const deletedUser = await existingUser.deleteOne();
     res
       .status(200)
       .json({ _id: deletedUser._id, fullName: deletedUser.fullName, email: deletedUser.email });
@@ -257,7 +267,7 @@ export const logOut = (req, res) => {
 export const getUser = async (req, res, next) => {
   try {
     const user = req.user;
-    res.status(200).json(user);
+    res.status(200).json({ fullName: user.fullName, email: user.email });
   } catch (error) {
     next(error);
   }
