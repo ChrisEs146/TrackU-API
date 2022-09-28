@@ -209,6 +209,17 @@ export const deleteUser = async (req, res, next) => {
   }
 };
 
+
+/**
+ * Controller to delete user cookies on logOut.
+ * @route POST /users/logout
+ * @access Public
+ */
+export const logOut = (req, res) => {
+  res.clearCookie("token", { httpOnly: true, sameSite: "None", secure: true });
+  res.status(200).json({ message: "Cookies Deleted" });
+};
+
 /**
  * Controller to get user's data
  * @route GET /users/info
