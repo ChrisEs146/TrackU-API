@@ -18,14 +18,14 @@ export const getUpdates = async (req, res, next) => {
     }
 
     // Finding parent project
-    const parentProject = await Project.findById(projectId);
+    const parentProject = await Project.findById(projectId).lean().exec();
     if (!parentProject) {
       res.status(404);
       throw new Error("Parent project not found");
     }
 
     // Getting updates from project
-    const updates = await Update.find({ project: projectId });
+    const updates = await Update.find({ project: projectId }).lean().exec();
     res.status(200).json(updates);
   } catch (error) {
     next(error);
@@ -49,7 +49,7 @@ export const addUpdate = async (req, res, next) => {
     }
 
     // Finding parent project
-    const parentProject = await Project.findById(projectId);
+    const parentProject = await Project.findById(projectId).lean().exec();
     if (!parentProject) {
       res.status(404);
       throw new Error("Parent project not found");
@@ -97,14 +97,14 @@ export const getUpdate = async (req, res, next) => {
     }
 
     // Finding parent project
-    const parentProject = await Project.findById(projectId);
+    const parentProject = await Project.findById(projectId).lean().exec();
     if (!parentProject) {
       res.status(404);
       throw new Error("Parent project not found");
     }
 
     // Finding update
-    const update = await Update.findById(updateId);
+    const update = await Update.findById(updateId).lean().exec();
     if (!update) {
       res.status(404);
       throw new Error("Update not found");
@@ -152,14 +152,14 @@ export const editUpdate = async (req, res, next) => {
     }
 
     // Finding parent project
-    const parentProject = await Project.findById(projectId);
+    const parentProject = await Project.findById(projectId).lean().exec();
     if (!parentProject) {
       res.status(404);
       throw new Error("Parent project not found");
     }
 
     // Finding update
-    const update = await Update.findById(updateId);
+    const update = await Update.findById(updateId).exec();
     if (!update) {
       res.status(404);
       throw new Error("Update not found");
@@ -178,11 +178,9 @@ export const editUpdate = async (req, res, next) => {
     }
 
     // Updating the project's update
-    const modifiedUpdate = await Update.findByIdAndUpdate(
-      updateId,
-      { title: title, description: description },
-      { new: true }
-    );
+    update.title = title;
+    update.description = description;
+    const modifiedUpdate = await update.save();
 
     res.status(200).json(modifiedUpdate);
   } catch (error) {
@@ -214,14 +212,14 @@ export const deleteUpdate = async (req, res, next) => {
     }
 
     // Finding parent project
-    const parentProject = await Project.findById(projectId);
+    const parentProject = await Project.findById(projectId).lean().exec();
     if (!parentProject) {
       res.status(404);
       throw new Error("Parent project not found");
     }
 
     // Finding update
-    const update = await Update.findById(updateId);
+    const update = await Update.findById(updateId).exec();
     if (!update) {
       res.status(404);
       throw new Error("Update not found");
