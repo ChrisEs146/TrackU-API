@@ -209,6 +209,35 @@ export const deleteUser = async (req, res, next) => {
   }
 };
 
+/**
+ * Controller to refresh tokens.
+ * @route GET /users/refresh
+ * @access Public
+ */
+export const refresh = async (req, res, next) => {
+  const cookieToken = req.cookies.token;
+
+  try {
+    if (!cookieToken) {
+      res.status(401);
+      throw new Error("Unauthorized");
+    }
+
+    const refreshToken = cookieToken;
+    const decoded = Jwt.verify(refreshToken, process.env.REFRESH_SECRET);
+    const authUser = await User.findOne({ email: decoded.email }).lean().exec();
+
+    if (!authUser) {
+      res.status(401);
+      throw new Error("User not authorized");
+    }
+
+    const accessToken = createToken(authUser.fullName, authUser.email);
+    res.status(200).json({ accessToken });
+  } catch (error) {
+    next(error);
+  }
+};
 
 /**
  * Controller to delete user cookies on logOut.
