@@ -10,8 +10,8 @@ export const auth = (req, res, next) => {
 
     const token = authHeaders.split(" ")[1];
     if (!token) {
-      res.status(401);
-      throw new Error("Unauthorized, Token not found");
+      res.status(403);
+      throw new Error("Token not found");
     }
 
     jwt.verify(token, process.env.ACCESS_SECRET, (error, decoded) => {
