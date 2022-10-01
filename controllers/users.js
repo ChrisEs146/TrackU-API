@@ -32,8 +32,8 @@ export const signIn = async (req, res, next) => {
     }
 
     // Creating tokens
-    const Accesstoken = createToken(existingUser._id, existingUser.fullName, existingUser.email);
-    const Refreshtoken = createToken(
+    const accessToken = createToken(existingUser._id, existingUser.fullName, existingUser.email);
+    const refreshToken = createToken(
       existingUser._id,
       existingUser.fullName,
       existingUser.email,
