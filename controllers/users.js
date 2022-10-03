@@ -27,7 +27,7 @@ export const signIn = async (req, res, next) => {
     // Checking for valid password
     const isValidPassword = await bcrypt.compare(password, existingUser.password);
     if (!isValidPassword) {
-      res.status(400);
+      res.status(401);
       throw new Error("Invalid Credentials");
     }
 
@@ -242,7 +242,7 @@ export const refresh = async (req, res, next) => {
       throw new Error("User not authorized");
     }
 
-    const accessToken = createToken(authUser.fullName, authUser.email);
+    const accessToken = createToken(authUser._id, authUser.fullName, authUser.email);
     res.status(200).json({ accessToken });
   } catch (error) {
     next(error);
