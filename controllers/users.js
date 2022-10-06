@@ -234,16 +234,20 @@ export const refresh = async (req, res, next) => {
     }
 
     const refreshToken = cookieToken;
-    const decoded = Jwt.verify(refreshToken, process.env.REFRESH_SECRET);
-    const authUser = await User.findOne({ email: decoded.email }).lean().exec();
+    Jwt.verify(refreshToken, process.env.REFRESH_SECRET, async (error, decoded) => {
+      if (error) {
+        res.status(401);
+        throw new Error("Token expired");
+      }
+      const authUser = await User.findOne({ email: decoded.email }).lean().exec();
 
-    if (!authUser) {
-      res.status(401);
-      throw new Error("User not authorized");
-    }
-
-    const accessToken = createToken(authUser._id, authUser.fullName, authUser.email);
-    res.status(200).json({ accessToken });
+      if (!authUser) {
+        res.status(401);
+        throw new Error("User not authorized");
+      }
+      const accessToken = createToken(authUser._id, authUser.fullName, authUser.email);
+      res.status(200).json({ accessToken });
+    });
   } catch (error) {
     next(error);
   }
