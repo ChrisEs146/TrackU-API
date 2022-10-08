@@ -13,22 +13,19 @@ export const signIn = async (req, res, next) => {
   try {
     // Checking for possible blank fields
     if (!email || !password) {
-      res.status(400);
-      throw new Error("Fields cannot be empty.");
+      return res.status(400).json({ message: "Fields cannot be empty." });
     }
 
     // Finding user
     const existingUser = await User.findOne({ email }).lean().exec();
     if (!existingUser) {
-      res.status(404);
-      throw new Error("User does not exist.");
+      return res.status(404).json({ message: "User does not exist" });
     }
 
     // Checking for valid password
     const isValidPassword = await bcrypt.compare(password, existingUser.password);
     if (!isValidPassword) {
-      res.status(401);
-      throw new Error("Invalid Credentials");
+      return res.status(401).json({ message: "Invalid Credentials" });
     }
 
     // Creating tokens
@@ -59,21 +56,18 @@ export const signUp = async (req, res, next) => {
   try {
     // Checking for possible blank fields
     if (!fullName || !email || !password || !confirmPassword) {
-      res.status(400);
-      throw new Error("Fields cannot be empty.");
+      return res.status(400).json({ message: "Fields cannot be empty." });
     }
 
     // Checking for existing user
     const existingUser = await User.findOne({ email }).lean().exec();
     if (existingUser) {
-      res.status(400);
-      throw new Error("User already exists.");
+      return res.status(400).json({ message: "User already exists." });
     }
 
     // Checking if passwords match
     if (password !== confirmPassword) {
-      res.status(400);
-      throw new Error("Passwords do not match.");
+      return res.status(400).json({ message: "Passwords do not match." });
     }
 
     // Hash password
@@ -102,15 +96,13 @@ export const updateUsername = async (req, res, next) => {
   try {
     // Checking for possible blank field
     if (!newFullName) {
-      res.status(400);
-      throw new Error("Fields cannot be empty");
+      return res.status(400).json({ message: "Fields cannot be empty." });
     }
 
     // Finding user
     const existingUser = await User.findById(userId).exec();
     if (!existingUser) {
-      res.status(404);
-      throw new Error("User not found");
+      return res.status(404).json({ message: "User not found" });
     }
 
     // Updating user's name
@@ -136,28 +128,24 @@ export const updateUserPassword = async (req, res, next) => {
   try {
     // Checking for possible blank fields
     if (!currentPassword || !newPassword || !confirmPassword) {
-      res.status(400);
-      throw new Error("Fields cannot be empty");
+      return res.status(400).json({ message: "Fields cannot be empty." });
     }
 
     // Finding user
     const existingUser = await User.findById(userId).exec();
     if (!existingUser) {
-      res.status(404);
-      throw new Error("User not found.");
+      return res.status(404).json({ message: "User not found" });
     }
 
     // Checking if passwords match
     if (newPassword !== confirmPassword) {
-      res.status(400);
-      throw new Error("Passwords do not match.");
+      return res.status(400).json({ message: "Passwords do not match" });
     }
 
     // Checking if current password is valid
     const isValidPassword = await bcrypt.compare(currentPassword, existingUser.password);
     if (!isValidPassword) {
-      res.status(400);
-      throw new Error("Invalid Password");
+      return res.status(400).json({ message: "Invalid Password" });
     }
 
     // Hashing new password
@@ -186,27 +174,23 @@ export const deleteUser = async (req, res, next) => {
   try {
     // Checking for possible empty fields
     if (!email || !password) {
-      res.status(400);
-      throw new Error("Fields cannot be empty");
+      return res.status(400).json({ message: "Fields cannot be empty." });
     }
 
     // Finding user
     const existingUser = await User.findOne({ email }).exec();
     if (!existingUser) {
-      res.status(404);
-      throw new Error("User not found.");
+      return res.status(404).json({ message: "User not found." });
     }
 
     if (existingUser.id !== userId) {
-      res.status(401);
-      throw new Error("User not authorized");
+      return res.status(401).json({ Message: "User not authorized" });
     }
 
     // Checking if password is valid
     const isValidPassword = await bcrypt.compare(password, existingUser.password);
     if (!isValidPassword) {
-      res.status(400);
-      throw new Error("Invalid Credentials");
+      return res.status(400).json({ message: "Invalid Credentials" });
     }
 
     // Deleting user
@@ -229,21 +213,18 @@ export const refresh = async (req, res, next) => {
 
   try {
     if (!cookieToken) {
-      res.status(401);
-      throw new Error("Unauthorized");
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
     const refreshToken = cookieToken;
     Jwt.verify(refreshToken, process.env.REFRESH_SECRET, async (error, decoded) => {
       if (error) {
-        res.status(401);
-        throw new Error("Token expired");
+        return res.status(401).json({ message: "Token Expired" });
       }
       const authUser = await User.findOne({ email: decoded.email }).lean().exec();
 
       if (!authUser) {
-        res.status(401);
-        throw new Error("User not authorized");
+        return res.status(401).json({ message: "User not authorized" });
       }
       const accessToken = createToken(authUser._id, authUser.fullName, authUser.email);
       res.status(200).json({ accessToken });

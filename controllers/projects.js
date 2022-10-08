@@ -31,14 +31,12 @@ export const addProject = async (req, res, next) => {
   try {
     // Checking for empty fields
     if (!title || !description) {
-      res.status(400);
-      throw new Error("Fields cannot be empty");
+      return res.status(400).json({ message: "Fields cannot be empty" });
     }
 
     const user = await User.findById(_id).lean().exec();
     if (!user) {
-      res.status(404);
-      throw new Error("User not found");
+      return res.status(404).json({ message: "User not found" });
     }
 
     //  Creating project and sending response
@@ -61,21 +59,18 @@ export const getProject = async (req, res, next) => {
   try {
     // Checking if project ID is valid
     if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      res.status(400);
-      throw new Error("Project ID is not valid");
+      return res.status(400).json({ message: "Project ID is not valid" });
     }
 
     // Finding project
     const project = await Project.findById(projectId).lean().exec();
     if (!project) {
-      res.status(404);
-      throw new Error("Project not found");
+      return res.status(404).json({ message: "Project not found" });
     }
 
     // Validating project's owner
     if (!req.user || project.user.toString() !== req.user._id) {
-      res.status(401);
-      throw new Error("User not authorized");
+      return res.status(401).json({ message: "User not authorized" });
     }
 
     // Sending response with the project
@@ -97,27 +92,23 @@ export const updateProject = async (req, res, next) => {
   try {
     // Checking if project ID is valid
     if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      res.status(400);
-      throw new Error("Project ID is not valid");
+      return res.status(400).json({ message: "Project ID is not valid" });
     }
 
     // Finding project
     const project = await Project.findById(projectId).exec();
     if (!project) {
-      res.status(404);
-      throw new Error("Project not found");
+      return res.status(404).json({ message: "Project not found" });
     }
 
     // Validating project's owner
     if (!req.user || project.user.toString() !== req.user._id) {
-      res.status(401);
-      throw new Error("User not authorized");
+      return res.status(401).json({ message: "User not authorized" });
     }
 
     // Checking for empty fields
     if (!title || !status || !progress || !description) {
-      res.status(400);
-      throw new Error("Fields cannot be empty");
+      return res.status(400).json({ message: "Fields cannot be empty" });
     }
 
     // Updating the project
@@ -145,21 +136,18 @@ export const deleteProject = async (req, res, next) => {
   try {
     // Checking i f project ID is alid
     if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      res.status(400);
-      throw new Error("Project ID is not valid");
+      return res.status(400).json({ message: "Project ID is not valid" });
     }
 
     // Finding project
     const project = await Project.findById(projectId).exec();
     if (!project) {
-      res.status(404);
-      throw new Error("Project not found");
+      return res.status(404).json({ message: "Project not found" });
     }
 
     // Validating project's owner
     if (!req.user || project.user.toString() !== req.user._id) {
-      res.status(401);
-      throw new Error("User not authorized");
+      return res.status(401).json({ message: "User not authorized" });
     }
 
     // Deleting the project
