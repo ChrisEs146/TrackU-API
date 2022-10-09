@@ -194,10 +194,10 @@ export const deleteUser = async (req, res, next) => {
     }
 
     // Deleting user
-    const deletedUser = await existingUser.deleteOne();
+    await existingUser.remove();
     res
       .status(200)
-      .json({ _id: deletedUser._id, fullName: deletedUser.fullName, email: deletedUser.email });
+      .json({ _id: existingUser._id, fullName: existingUser.fullName, email: existingUser.email });
   } catch (error) {
     next(error);
   }
