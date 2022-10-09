@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import Project from "./project.js";
+import Update from "./update.js";
 
 const userSchema = mongoose.Schema({
   fullName: { type: String, required: true },
