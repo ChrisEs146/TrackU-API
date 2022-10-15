@@ -183,8 +183,8 @@ export const deleteUser = async (req, res, next) => {
       return res.status(404).json({ message: "User not found." });
     }
 
-    if (existingUser.id !== userId) {
-      return res.status(401).json({ Message: "User not authorized" });
+    if (!existingUser._id.equals(userId)) {
+      return res.status(401).json({ message: "User not authorized" });
     }
 
     // Checking if password is valid
