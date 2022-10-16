@@ -69,7 +69,7 @@ export const getProject = async (req, res, next) => {
     }
 
     // Validating project's owner
-    if (!req.user || project.user.toString() !== req.user._id) {
+    if (!project.user.equals(req.user._id)) {
       return res.status(401).json({ message: "User not authorized" });
     }
 
@@ -102,7 +102,7 @@ export const updateProject = async (req, res, next) => {
     }
 
     // Validating project's owner
-    if (!req.user || project.user.toString() !== req.user._id) {
+    if (!project.user.equals(req.user._id)) {
       return res.status(401).json({ message: "User not authorized" });
     }
 
@@ -146,7 +146,7 @@ export const deleteProject = async (req, res, next) => {
     }
 
     // Validating project's owner
-    if (!req.user || project.user.toString() !== req.user._id) {
+    if (!project.user.equals(req.user._id)) {
       return res.status(401).json({ message: "User not authorized" });
     }
 
