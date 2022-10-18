@@ -13,19 +13,17 @@ export const getUpdates = async (req, res, next) => {
   try {
     // Checking if project ID is valid
     if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      res.status(400);
-      throw new Error("Project ID is not valid");
+      return res.status(400).json({ message: "Project ID is not valid" });
     }
 
     // Finding parent project
-    const parentProject = await Project.findById(projectId);
+    const parentProject = await Project.findById(projectId).lean().exec();
     if (!parentProject) {
-      res.status(404);
-      throw new Error("Parent project not found");
+      return res.status(404).json({ message: "Parent project not found" });
     }
 
     // Getting updates from project
-    const updates = await Update.find({ project: projectId });
+    const updates = await Update.find({ project: projectId }).lean().exec();
     res.status(200).json(updates);
   } catch (error) {
     next(error);
@@ -44,21 +42,18 @@ export const addUpdate = async (req, res, next) => {
   try {
     // Checking if project ID is valid
     if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      res.status(400);
-      throw new Error("Project ID is not valid");
+      return res.status(400).json({ message: "Project ID is not valid" });
     }
 
     // Finding parent project
-    const parentProject = await Project.findById(projectId);
+    const parentProject = await Project.findById(projectId).lean().exec();
     if (!parentProject) {
-      res.status(404);
-      throw new Error("Parent project not found");
+      return res.status(404).json({ message: "Parent project not found" });
     }
 
     // Checking for empty fields
     if (!title || !description) {
-      res.status(400);
-      throw new Error("Fields cannot be empty");
+      return res.status(400).json({ message: "Fields cannot be empty" });
     }
 
     // Creating new update
@@ -86,34 +81,29 @@ export const getUpdate = async (req, res, next) => {
   try {
     // Checking if project ID is valid
     if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      res.status(400);
-      throw new Error("Project ID is not valid");
+      return res.status(400).json({ message: "Project ID is not valid" });
     }
 
     // Checking if update ID is valid
     if (!mongoose.Types.ObjectId.isValid(updateId)) {
-      res.status(400);
-      throw new Error("Update ID is not valid");
+      return res.status(400).json({ message: "Update ID is not valid" });
     }
 
     // Finding parent project
-    const parentProject = await Project.findById(projectId);
+    const parentProject = await Project.findById(projectId).lean().exec();
     if (!parentProject) {
-      res.status(404);
-      throw new Error("Parent project not found");
+      return res.status(404).json({ message: "Parent project not found" });
     }
 
     // Finding update
-    const update = await Update.findById(updateId);
+    const update = await Update.findById(updateId).lean().exec();
     if (!update) {
-      res.status(404);
-      throw new Error("Update not found");
+      return res.status(404).json({ message: "Update not found" });
     }
 
     // Checking if project ID matches
     if (projectId !== update.project.toString()) {
-      res.status(400);
-      throw new Error("Unauthorized Update");
+      return res.status(400).json({ message: "Unauthorized Update" });
     }
 
     // Sending update
@@ -141,48 +131,40 @@ export const editUpdate = async (req, res, next) => {
   try {
     // Checking if project ID is valid
     if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      res.status(400);
-      throw new Error("Project ID is not valid");
+      return res.status(400).json({ message: "Project ID is not valid" });
     }
 
     // Checking if update ID is valid
     if (!mongoose.Types.ObjectId.isValid(updateId)) {
-      res.status(400);
-      throw new Error("Update ID is not valid");
+      return res.status(400).json({ message: "Update ID is not valid" });
     }
 
     // Finding parent project
-    const parentProject = await Project.findById(projectId);
+    const parentProject = await Project.findById(projectId).lean().exec();
     if (!parentProject) {
-      res.status(404);
-      throw new Error("Parent project not found");
+      return res.status(404).json({ message: "Parent project not found" });
     }
 
     // Finding update
-    const update = await Update.findById(updateId);
+    const update = await Update.findById(updateId).exec();
     if (!update) {
-      res.status(404);
-      throw new Error("Update not found");
+      return res.status(404).json({ message: "Update not found" });
     }
 
     // Checking if project ID matches
     if (update.project.toString() !== projectId) {
-      res.status(400);
-      throw new Error("Unauthorized Update");
+      return res.status(400).json({ message: "Unauthorized Update" });
     }
 
     // Checking for empty fields
     if (!title || !description) {
-      res.status(400);
-      throw new Error("Field cannot be empty");
+      return res.status(400).json({ message: "Field cannot be empty" });
     }
 
     // Updating the project's update
-    const modifiedUpdate = await Update.findByIdAndUpdate(
-      updateId,
-      { title: title, description: description },
-      { new: true }
-    );
+    update.title = title;
+    update.description = description;
+    const modifiedUpdate = await update.save();
 
     res.status(200).json(modifiedUpdate);
   } catch (error) {
@@ -203,34 +185,29 @@ export const deleteUpdate = async (req, res, next) => {
   try {
     // Checking if project ID is valid
     if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      res.status(400);
-      throw new Error("Project ID is not valid");
+      return res.status(400).json({ message: "Project ID is not valid" });
     }
 
     // Checking if update ID is valid
     if (!mongoose.Types.ObjectId.isValid(updateId)) {
-      res.status(400);
-      throw new Error("Update ID is not valid");
+      return res.status(400).json({ message: "Update ID is not valid" });
     }
 
     // Finding parent project
-    const parentProject = await Project.findById(projectId);
+    const parentProject = await Project.findById(projectId).lean().exec();
     if (!parentProject) {
-      res.status(404);
-      throw new Error("Parent project not found");
+      return res.status(404).json({ message: "Parent project not found" });
     }
 
     // Finding update
-    const update = await Update.findById(updateId);
+    const update = await Update.findById(updateId).exec();
     if (!update) {
-      res.status(404);
-      throw new Error("Update not found");
+      return res.status(404).json({ message: "Update not found" });
     }
 
     // Checking if project ID matches
     if (update.project.toString() !== projectId) {
-      res.status(400);
-      throw new Error("Unauthorized Update");
+      return res.status(400).json({ message: "Unauthorized Update" });
     }
 
     // Deleting update

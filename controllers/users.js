@@ -1,40 +1,46 @@
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import User from "../models/user.js";
+import Jwt from "jsonwebtoken";
+import { createToken } from "../utils/tokenCreator.js";
 
 /**
  * Controller to sign in a user.
  * @route POST /users/signin
  * @access Public
- *
  */
 export const signIn = async (req, res, next) => {
   const { email, password } = req.body;
   try {
-    const existingUser = await User.findOne({ email });
-    if (!existingUser) {
-      res.status(404);
-      throw new Error("User does not exist.");
+    // Checking for possible blank fields
+    if (!email || !password) {
+      return res.status(400).json({ message: "Fields cannot be empty." });
     }
 
+    // Finding user
+    const existingUser = await User.findOne({ email }).lean().exec();
+    if (!existingUser) {
+      return res.status(404).json({ message: "User does not exist" });
+    }
+
+    // Checking for valid password
     const isValidPassword = await bcrypt.compare(password, existingUser.password);
     if (!isValidPassword) {
-      res.status(400);
-      throw new Error("Invalid Credentials");
+      return res.status(401).json({ message: "Invalid Credentials" });
     }
 
-    const token = jwt.sign(
-      { email: existingUser.email, id: existingUser._id },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+    // Creating tokens
+    const accessToken = createToken(existingUser._id, existingUser.fullName, existingUser.email);
+    const refreshToken = createToken(
+      existingUser._id,
+      existingUser.fullName,
+      existingUser.email,
+      true
     );
 
-    res.status(200).json({
-      _id: existingUser._id,
-      fullName: existingUser.fullName,
-      email: existingUser.email,
-      token,
-    });
+    res
+      .status(200)
+      .cookie("token", refreshToken, { httpOnly: true, sameSite: "None", secure: true })
+      .json({ accessToken });
   } catch (error) {
     next(error);
   }
@@ -50,21 +56,18 @@ export const signUp = async (req, res, next) => {
   try {
     // Checking for possible blank fields
     if (!fullName || !email || !password || !confirmPassword) {
-      res.status(400);
-      throw new Error("Fields cannot be empty.");
+      return res.status(400).json({ message: "Fields cannot be empty." });
     }
 
     // Checking for existing user
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email }).lean().exec();
     if (existingUser) {
-      res.status(400);
-      throw new Error("User already exists.");
+      return res.status(400).json({ message: "User already exists." });
     }
 
     // Checking if passwords match
     if (password !== confirmPassword) {
-      res.status(400);
-      throw new Error("Passwords do not match.");
+      return res.status(400).json({ message: "Passwords do not match." });
     }
 
     // Hash password
@@ -72,16 +75,10 @@ export const signUp = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, salt);
     const user = await User.create({ fullName, email, password: hashedPassword });
 
-    // Creating token
-    const token = jwt.sign({ email: user.email, id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRES_IN,
-    });
-
     res.status(201).json({
       _id: user._id,
       fullName: user.fullName,
       email: user.email,
-      token,
     });
   } catch (error) {
     next(error);
@@ -95,20 +92,23 @@ export const signUp = async (req, res, next) => {
  */
 export const updateUsername = async (req, res, next) => {
   const { newFullName } = req.body;
-  const userId = req.user.id;
+  const userId = req.user._id;
   try {
     // Checking for possible blank field
     if (!newFullName) {
-      res.status(400);
-      throw new Error("Fields cannot be empty");
+      return res.status(400).json({ message: "Fields cannot be empty." });
+    }
+
+    // Finding user
+    const existingUser = await User.findById(userId).exec();
+    if (!existingUser) {
+      return res.status(404).json({ message: "User not found" });
     }
 
     // Updating user's name
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { fullName: newFullName },
-      { new: true }
-    );
+    existingUser.fullName = newFullName;
+    const updatedUser = await existingUser.save();
+
     res
       .status(200)
       .json({ _id: updatedUser._id, fullName: updatedUser.fullName, email: updatedUser.email });
@@ -124,32 +124,28 @@ export const updateUsername = async (req, res, next) => {
  */
 export const updateUserPassword = async (req, res, next) => {
   const { currentPassword, newPassword, confirmPassword } = req.body;
-  const userId = req.user.id;
+  const userId = req.user._id;
   try {
     // Checking for possible blank fields
     if (!currentPassword || !newPassword || !confirmPassword) {
-      res.status(400);
-      throw new Error("Fields cannot be empty");
+      return res.status(400).json({ message: "Fields cannot be empty." });
     }
 
     // Finding user
-    const existingUser = await User.findById(userId);
+    const existingUser = await User.findById(userId).exec();
     if (!existingUser) {
-      res.status(404);
-      throw new Error("User not found.");
+      return res.status(404).json({ message: "User not found" });
     }
 
     // Checking if passwords match
     if (newPassword !== confirmPassword) {
-      res.status(400);
-      throw new Error("Passwords do not match.");
+      return res.status(400).json({ message: "Passwords do not match" });
     }
 
     // Checking if current password is valid
     const isValidPassword = await bcrypt.compare(currentPassword, existingUser.password);
     if (!isValidPassword) {
-      res.status(400);
-      throw new Error("Invalid Password");
+      return res.status(400).json({ message: "Invalid Password" });
     }
 
     // Hashing new password
@@ -157,7 +153,9 @@ export const updateUserPassword = async (req, res, next) => {
     const newHashedPassword = await bcrypt.hash(newPassword, salt);
 
     // Updating user's password
-    await User.findByIdAndUpdate(userId, { password: newHashedPassword });
+    existingUser.password = newHashedPassword;
+    await existingUser.save();
+
     res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
     next(error);
@@ -171,42 +169,79 @@ export const updateUserPassword = async (req, res, next) => {
  */
 export const deleteUser = async (req, res, next) => {
   const { email, password } = req.body;
-  const userId = req.user.id;
+  const userId = req.user._id;
 
   try {
     // Checking for possible empty fields
     if (!email || !password) {
-      res.status(400);
-      throw new Error("Fields cannot be empty");
+      return res.status(400).json({ message: "Fields cannot be empty." });
     }
 
     // Finding user
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email }).exec();
     if (!existingUser) {
-      res.status(404);
-      throw new Error("User not found.");
+      return res.status(404).json({ message: "User not found." });
     }
 
-    if (existingUser.id !== userId) {
-      res.status(401);
-      throw new Error("User not authorized");
+    if (!existingUser._id.equals(userId)) {
+      return res.status(401).json({ message: "User not authorized" });
     }
 
     // Checking if password is valid
     const isValidPassword = await bcrypt.compare(password, existingUser.password);
     if (!isValidPassword) {
-      res.status(400);
-      throw new Error("Invalid Credentials");
+      return res.status(400).json({ message: "Invalid Credentials" });
     }
 
     // Deleting user
-    const deletedUser = await User.findOneAndDelete({ email });
+    await existingUser.remove();
     res
       .status(200)
-      .json({ _id: deletedUser._id, fullName: deletedUser.fullName, email: deletedUser.email });
+      .json({ _id: existingUser._id, fullName: existingUser.fullName, email: existingUser.email });
   } catch (error) {
     next(error);
   }
+};
+
+/**
+ * Controller to refresh tokens.
+ * @route GET /users/refresh
+ * @access Public
+ */
+export const refresh = async (req, res, next) => {
+  const cookieToken = req.cookies.token;
+
+  try {
+    if (!cookieToken) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const refreshToken = cookieToken;
+    Jwt.verify(refreshToken, process.env.REFRESH_SECRET, async (error, decoded) => {
+      if (error) {
+        return res.status(401).json({ message: "Token Expired" });
+      }
+      const authUser = await User.findOne({ email: decoded.email }).lean().exec();
+
+      if (!authUser) {
+        return res.status(401).json({ message: "User not authorized" });
+      }
+      const accessToken = createToken(authUser._id, authUser.fullName, authUser.email);
+      res.status(200).json({ accessToken });
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Controller to delete user cookies on logOut.
+ * @route POST /users/logout
+ * @access Public
+ */
+export const logOut = (req, res) => {
+  res.clearCookie("token", { httpOnly: true, sameSite: "None", secure: true });
+  res.status(200).json({ message: "Cookies Deleted" });
 };
 
 /**
@@ -217,7 +252,7 @@ export const deleteUser = async (req, res, next) => {
 export const getUser = async (req, res, next) => {
   try {
     const user = req.user;
-    res.status(200).json(user);
+    res.status(200).json({ fullName: user.fullName, email: user.email });
   } catch (error) {
     next(error);
   }
