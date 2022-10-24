@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import Project from "./project.js";
 import Update from "./update.js";
+import bcrypt from "bcryptjs";
+import validator from "validator";
 
 const userSchema = mongoose.Schema({
   fullName: {
