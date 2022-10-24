@@ -45,4 +45,19 @@ userSchema.pre("remove", async function () {
   await Project.deleteMany({ user: this._id }).exec();
 });
 
+// Hashing password on save
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    return next();
+  }
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(this.password, salt);
+    this.password = hashedPassword;
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default mongoose.model("User", userSchema);
