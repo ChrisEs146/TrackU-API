@@ -16,7 +16,7 @@ const projectSchema = mongoose.Schema(
       default: "Not Started",
       enum: {
         values: ["Not Started", "In Progress", "Completed"],
-        message: `{VALUE} is not supported`,
+        message: "{VALUE} is not supported",
       },
     },
     progress: {
