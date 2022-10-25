@@ -1,6 +1,7 @@
 import Update from "../models/update.js";
 import Project from "../models/project.js";
 import mongoose from "mongoose";
+import { getError } from "../utils/getError.js";
 
 /**
  * Controller to get all updates from a project.
@@ -10,12 +11,12 @@ import mongoose from "mongoose";
 export const getUpdates = async (req, res, next) => {
   const { projectId } = req.params;
 
-  try {
-    // Checking if project ID is valid
-    if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      return res.status(400).json({ message: "Project ID is not valid" });
-    }
+  // Checking if project ID is valid
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    return res.status(400).json({ message: "Project ID is not valid" });
+  }
 
+  try {
     // Finding parent project
     const parentProject = await Project.findById(projectId).lean().exec();
     if (!parentProject) {
@@ -24,7 +25,7 @@ export const getUpdates = async (req, res, next) => {
 
     // Getting updates from project
     const updates = await Update.find({ project: projectId }).lean().exec();
-    res.status(200).json(updates);
+    return res.status(200).json(updates);
   } catch (error) {
     next(error);
   }
@@ -39,32 +40,36 @@ export const addUpdate = async (req, res, next) => {
   const { title, description } = req.body;
   const { projectId } = req.params;
 
-  try {
-    // Checking if project ID is valid
-    if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      return res.status(400).json({ message: "Project ID is not valid" });
-    }
+  // Checking for empty fields
+  if (!title || !description) {
+    return res.status(400).json({ message: "Fields cannot be empty" });
+  }
 
-    // Finding parent project
+  // Checking if project ID is valid
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    return res.status(400).json({ message: "Project ID is not valid" });
+  }
+
+  // Finding parent project
+  try {
     const parentProject = await Project.findById(projectId).lean().exec();
     if (!parentProject) {
       return res.status(404).json({ message: "Parent project not found" });
     }
+  } catch (error) {
+    next(error);
+  }
 
-    // Checking for empty fields
-    if (!title || !description) {
-      return res.status(400).json({ message: "Fields cannot be empty" });
-    }
-
-    // Creating new update
+  // Creating new update
+  try {
     const update = await Update.create({
       project: projectId,
       title: title,
       description: description,
     });
-    res.status(200).json(update);
+    return res.status(201).json(update);
   } catch (error) {
-    next(error);
+    return res.status(400).json({ message: getError(error) });
   }
 };
 
@@ -75,20 +80,19 @@ export const addUpdate = async (req, res, next) => {
  * @access Private
  */
 export const getUpdate = async (req, res, next) => {
-  const { projectId } = req.params;
-  const { updateId } = req.params;
+  const { projectId, updateId } = req.params;
+
+  // Checking if project ID is valid
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    return res.status(400).json({ message: "Project ID is not valid" });
+  }
+
+  // Checking if update ID is valid
+  if (!mongoose.Types.ObjectId.isValid(updateId)) {
+    return res.status(400).json({ message: "Update ID is not valid" });
+  }
 
   try {
-    // Checking if project ID is valid
-    if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      return res.status(400).json({ message: "Project ID is not valid" });
-    }
-
-    // Checking if update ID is valid
-    if (!mongoose.Types.ObjectId.isValid(updateId)) {
-      return res.status(400).json({ message: "Update ID is not valid" });
-    }
-
     // Finding parent project
     const parentProject = await Project.findById(projectId).lean().exec();
     if (!parentProject) {
@@ -107,7 +111,7 @@ export const getUpdate = async (req, res, next) => {
     }
 
     // Sending update
-    res.status(200).json({
+    return res.status(200).json({
       id: update._id,
       title: update.title,
       description: update.description,
@@ -125,20 +129,24 @@ export const getUpdate = async (req, res, next) => {
  */
 export const editUpdate = async (req, res, next) => {
   const { title, description } = req.body;
-  const { projectId } = req.params;
-  const { updateId } = req.params;
+  const { projectId, updateId } = req.params;
+
+  // Checking for empty fields
+  if (!title || !description) {
+    return res.status(400).json({ message: "Field cannot be empty" });
+  }
+
+  // Checking if project ID is valid
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    return res.status(400).json({ message: "Project ID is not valid" });
+  }
+
+  // Checking if update ID is valid
+  if (!mongoose.Types.ObjectId.isValid(updateId)) {
+    return res.status(400).json({ message: "Update ID is not valid" });
+  }
 
   try {
-    // Checking if project ID is valid
-    if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      return res.status(400).json({ message: "Project ID is not valid" });
-    }
-
-    // Checking if update ID is valid
-    if (!mongoose.Types.ObjectId.isValid(updateId)) {
-      return res.status(400).json({ message: "Update ID is not valid" });
-    }
-
     // Finding parent project
     const parentProject = await Project.findById(projectId).lean().exec();
     if (!parentProject) {
@@ -146,7 +154,7 @@ export const editUpdate = async (req, res, next) => {
     }
 
     // Finding update
-    const update = await Update.findById(updateId).exec();
+    const update = await Update.findById(updateId).lean().exec();
     if (!update) {
       return res.status(404).json({ message: "Update not found" });
     }
@@ -155,20 +163,20 @@ export const editUpdate = async (req, res, next) => {
     if (update.project.toString() !== projectId) {
       return res.status(400).json({ message: "Unauthorized Update" });
     }
-
-    // Checking for empty fields
-    if (!title || !description) {
-      return res.status(400).json({ message: "Field cannot be empty" });
-    }
-
-    // Updating the project's update
-    update.title = title;
-    update.description = description;
-    const modifiedUpdate = await update.save();
-
-    res.status(200).json(modifiedUpdate);
   } catch (error) {
     next(error);
+  }
+
+  try {
+    // Updating the project's update
+    const modifiedUpdate = await Update.findOneAndUpdate(
+      { _id: updateId },
+      { title, description },
+      { new: true, runValidators: true }
+    ).exec();
+    return res.status(200).json(modifiedUpdate);
+  } catch (error) {
+    return res.status(400).json({ message: getError(error) });
   }
 };
 
@@ -179,20 +187,19 @@ export const editUpdate = async (req, res, next) => {
  * @access Private
  */
 export const deleteUpdate = async (req, res, next) => {
-  const { projectId } = req.params;
-  const { updateId } = req.params;
+  const { projectId, updateId } = req.params;
+
+  // Checking if project ID is valid
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    return res.status(400).json({ message: "Project ID is not valid" });
+  }
+
+  // Checking if update ID is valid
+  if (!mongoose.Types.ObjectId.isValid(updateId)) {
+    return res.status(400).json({ message: "Update ID is not valid" });
+  }
 
   try {
-    // Checking if project ID is valid
-    if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      return res.status(400).json({ message: "Project ID is not valid" });
-    }
-
-    // Checking if update ID is valid
-    if (!mongoose.Types.ObjectId.isValid(updateId)) {
-      return res.status(400).json({ message: "Update ID is not valid" });
-    }
-
     // Finding parent project
     const parentProject = await Project.findById(projectId).lean().exec();
     if (!parentProject) {
@@ -212,7 +219,7 @@ export const deleteUpdate = async (req, res, next) => {
 
     // Deleting update
     await update.remove();
-    res.status(200).json({ message: "Updated was deleted successfully" });
+    return res.status(200).json({ message: "Updated was deleted successfully" });
   } catch (error) {
     next(error);
   }

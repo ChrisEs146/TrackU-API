@@ -13,7 +13,6 @@ const app = express();
 app.use(cookieParser());
 app.use(cors({ origin: process.env.ORIGIN, credentials: true }));
 app.use(express.json({ limit: "30mb", extended: true }));
-app.use(express.urlencoded({ limit: "30mb", extended: true }));
 
 app.use("/users", userRoutes);
 app.use("/projects", projectRoutes);

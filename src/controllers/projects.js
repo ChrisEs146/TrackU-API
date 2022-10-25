@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Project from "../models/project.js";
 import User from "../models/user.js";
+import { getError } from "../utils/getError.js";
 
 /**
  * Controller to get all projects from a user.
@@ -13,7 +14,7 @@ export const getAllProjects = async (req, res, next) => {
     const projects = await Project.find({ user: req.user._id }).lean().exec();
 
     // Sending a response with all projects
-    res.status(200).json(projects);
+    return res.status(200).json(projects);
   } catch (error) {
     next(error);
   }
@@ -28,22 +29,27 @@ export const addProject = async (req, res, next) => {
   const { title, description } = req.body;
   const { _id } = req.user;
 
-  try {
-    // Checking for empty fields
-    if (!title || !description) {
-      return res.status(400).json({ message: "Fields cannot be empty" });
-    }
+  // // Checking for empty fields
+  if (!title || !description) {
+    return res.status(400).json({ message: "Fields cannot be empty" });
+  }
 
+  // Finding user
+  try {
     const user = await User.findById(_id).lean().exec();
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-
-    //  Creating project and sending response
-    const project = await Project.create({ user: _id, title: title, description: description });
-    res.status(200).json(project);
   } catch (error) {
     next(error);
+  }
+
+  //  Creating and validating project
+  try {
+    const project = await Project.create({ user: _id, title: title, description: description });
+    return res.status(201).json(project);
+  } catch (error) {
+    return res.status(400).json({ message: getError(error) });
   }
 };
 
@@ -56,12 +62,12 @@ export const addProject = async (req, res, next) => {
 export const getProject = async (req, res, next) => {
   const { projectId } = req.params;
 
-  try {
-    // Checking if project ID is valid
-    if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      return res.status(400).json({ message: "Project ID is not valid" });
-    }
+  // Checking if project ID is valid
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    return res.status(400).json({ message: "Project ID is not valid" });
+  }
 
+  try {
     // Finding project
     const project = await Project.findById(projectId).lean().exec();
     if (!project) {
@@ -74,7 +80,7 @@ export const getProject = async (req, res, next) => {
     }
 
     // Sending response with the project
-    res.status(200).json(project);
+    return res.status(200).json(project);
   } catch (error) {
     next(error);
   }
@@ -89,14 +95,19 @@ export const updateProject = async (req, res, next) => {
   const { title, status, progress, description } = req.body;
   const { projectId } = req.params;
 
-  try {
-    // Checking if project ID is valid
-    if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      return res.status(400).json({ message: "Project ID is not valid" });
-    }
+  // Checking for empty fields
+  if (!title || !status || !progress || !description) {
+    return res.status(400).json({ message: "Fields cannot be empty" });
+  }
 
+  // Checking if project ID is valid
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    return res.status(400).json({ message: "Project ID is not valid" });
+  }
+
+  try {
     // Finding project
-    const project = await Project.findById(projectId).exec();
+    const project = await Project.findById(projectId).lean().exec();
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
@@ -105,23 +116,20 @@ export const updateProject = async (req, res, next) => {
     if (!project.user.equals(req.user._id)) {
       return res.status(401).json({ message: "User not authorized" });
     }
-
-    // Checking for empty fields
-    if (!title || !status || !progress || !description) {
-      return res.status(400).json({ message: "Fields cannot be empty" });
-    }
-
-    // Updating the project
-    project.title = title;
-    project.status = status;
-    project.progress = progress;
-    project.description = description;
-    const updatedProject = await project.save();
-
-    // Sending a response with the updated project
-    res.status(200).json(updatedProject);
   } catch (error) {
     next(error);
+  }
+
+  try {
+    // Updating the project
+    const updatedProject = await Project.findOneAndUpdate(
+      { _id: projectId },
+      { title, status, progress, description },
+      { new: true, runValidators: true }
+    ).exec();
+    return res.status(200).json(updatedProject);
+  } catch (error) {
+    return res.status(400).json({ message: getError(error) });
   }
 };
 
@@ -133,12 +141,12 @@ export const updateProject = async (req, res, next) => {
 export const deleteProject = async (req, res, next) => {
   const { projectId } = req.params;
 
-  try {
-    // Checking i f project ID is alid
-    if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      return res.status(400).json({ message: "Project ID is not valid" });
-    }
+  // Checking i f project ID is alid
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    return res.status(400).json({ message: "Project ID is not valid" });
+  }
 
+  try {
     // Finding project
     const project = await Project.findById(projectId).exec();
     if (!project) {
@@ -153,7 +161,7 @@ export const deleteProject = async (req, res, next) => {
     // Deleting the project
     await project.remove();
     // Sending a response with a confirmation
-    res.status(200).json({ message: "Project was deleted successfully" });
+    return res.status(200).json({ message: "Project was deleted successfully" });
   } catch (error) {
     next(error);
   }
