@@ -202,7 +202,7 @@ export const deleteUser = async (req, res, next) => {
 
     // Deleting user
     await existingUser.remove();
-    res
+    return res
       .status(200)
       .json({ _id: existingUser._id, fullName: existingUser.fullName, email: existingUser.email });
   } catch (error) {
@@ -234,7 +234,7 @@ export const refresh = async (req, res, next) => {
         return res.status(401).json({ message: "User not authorized" });
       }
       const accessToken = createToken(authUser._id, authUser.fullName, authUser.email);
-      res.status(200).json({ accessToken });
+      return res.status(200).json({ accessToken });
     });
   } catch (error) {
     next(error);
@@ -248,7 +248,7 @@ export const refresh = async (req, res, next) => {
  */
 export const logOut = (req, res) => {
   res.clearCookie("token", { httpOnly: true, sameSite: "None", secure: true });
-  res.status(200).json({ message: "Cookies Deleted" });
+  return res.status(200).json({ message: "Cookies Deleted" });
 };
 
 /**
@@ -259,7 +259,7 @@ export const logOut = (req, res) => {
 export const getUser = (req, res, next) => {
   try {
     const user = req.user;
-    res.status(200).json({ fullName: user.fullName, email: user.email });
+    return res.status(200).json({ fullName: user.fullName, email: user.email });
   } catch (error) {
     next(error);
   }
