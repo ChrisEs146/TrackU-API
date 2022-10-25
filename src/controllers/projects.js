@@ -62,12 +62,12 @@ export const addProject = async (req, res, next) => {
 export const getProject = async (req, res, next) => {
   const { projectId } = req.params;
 
-  try {
-    // Checking if project ID is valid
-    if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      return res.status(400).json({ message: "Project ID is not valid" });
-    }
+  // Checking if project ID is valid
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    return res.status(400).json({ message: "Project ID is not valid" });
+  }
 
+  try {
     // Finding project
     const project = await Project.findById(projectId).lean().exec();
     if (!project) {
@@ -80,7 +80,7 @@ export const getProject = async (req, res, next) => {
     }
 
     // Sending response with the project
-    res.status(200).json(project);
+    return res.status(200).json(project);
   } catch (error) {
     next(error);
   }
