@@ -1,6 +1,7 @@
 import Update from "../models/update.js";
 import Project from "../models/project.js";
 import mongoose from "mongoose";
+import { getError } from "../utils/getError.js";
 
 /**
  * Controller to get all updates from a project.
@@ -186,20 +187,19 @@ export const editUpdate = async (req, res, next) => {
  * @access Private
  */
 export const deleteUpdate = async (req, res, next) => {
-  const { projectId } = req.params;
-  const { updateId } = req.params;
+  const { projectId, updateId } = req.params;
+
+  // Checking if project ID is valid
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    return res.status(400).json({ message: "Project ID is not valid" });
+  }
+
+  // Checking if update ID is valid
+  if (!mongoose.Types.ObjectId.isValid(updateId)) {
+    return res.status(400).json({ message: "Update ID is not valid" });
+  }
 
   try {
-    // Checking if project ID is valid
-    if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      return res.status(400).json({ message: "Project ID is not valid" });
-    }
-
-    // Checking if update ID is valid
-    if (!mongoose.Types.ObjectId.isValid(updateId)) {
-      return res.status(400).json({ message: "Update ID is not valid" });
-    }
-
     // Finding parent project
     const parentProject = await Project.findById(projectId).lean().exec();
     if (!parentProject) {
@@ -219,7 +219,7 @@ export const deleteUpdate = async (req, res, next) => {
 
     // Deleting update
     await update.remove();
-    res.status(200).json({ message: "Updated was deleted successfully" });
+    return res.status(200).json({ message: "Updated was deleted successfully" });
   } catch (error) {
     next(error);
   }
