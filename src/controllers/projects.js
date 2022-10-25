@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Project from "../models/project.js";
 import User from "../models/user.js";
+import { getError } from "../utils/getError.js";
 
 /**
  * Controller to get all projects from a user.
