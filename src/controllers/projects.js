@@ -29,22 +29,27 @@ export const addProject = async (req, res, next) => {
   const { title, description } = req.body;
   const { _id } = req.user;
 
-  try {
-    // Checking for empty fields
-    if (!title || !description) {
-      return res.status(400).json({ message: "Fields cannot be empty" });
-    }
+  // // Checking for empty fields
+  if (!title || !description) {
+    return res.status(400).json({ message: "Fields cannot be empty" });
+  }
 
+  // Finding user
+  try {
     const user = await User.findById(_id).lean().exec();
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-
-    //  Creating project and sending response
-    const project = await Project.create({ user: _id, title: title, description: description });
-    res.status(200).json(project);
   } catch (error) {
     next(error);
+  }
+
+  //  Creating and validating project
+  try {
+    const project = await Project.create({ user: _id, title: title, description: description });
+    return res.status(201).json(project);
+  } catch (error) {
+    return res.status(400).json({ message: getError(error) });
   }
 };
 
