@@ -10,12 +10,12 @@ import mongoose from "mongoose";
 export const getUpdates = async (req, res, next) => {
   const { projectId } = req.params;
 
-  try {
-    // Checking if project ID is valid
-    if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      return res.status(400).json({ message: "Project ID is not valid" });
-    }
+  // Checking if project ID is valid
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    return res.status(400).json({ message: "Project ID is not valid" });
+  }
 
+  try {
     // Finding parent project
     const parentProject = await Project.findById(projectId).lean().exec();
     if (!parentProject) {
@@ -24,7 +24,7 @@ export const getUpdates = async (req, res, next) => {
 
     // Getting updates from project
     const updates = await Update.find({ project: projectId }).lean().exec();
-    res.status(200).json(updates);
+    return res.status(200).json(updates);
   } catch (error) {
     next(error);
   }
