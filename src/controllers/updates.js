@@ -79,20 +79,19 @@ export const addUpdate = async (req, res, next) => {
  * @access Private
  */
 export const getUpdate = async (req, res, next) => {
-  const { projectId } = req.params;
-  const { updateId } = req.params;
+  const { projectId, updateId } = req.params;
+
+  // Checking if project ID is valid
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    return res.status(400).json({ message: "Project ID is not valid" });
+  }
+
+  // Checking if update ID is valid
+  if (!mongoose.Types.ObjectId.isValid(updateId)) {
+    return res.status(400).json({ message: "Update ID is not valid" });
+  }
 
   try {
-    // Checking if project ID is valid
-    if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      return res.status(400).json({ message: "Project ID is not valid" });
-    }
-
-    // Checking if update ID is valid
-    if (!mongoose.Types.ObjectId.isValid(updateId)) {
-      return res.status(400).json({ message: "Update ID is not valid" });
-    }
-
     // Finding parent project
     const parentProject = await Project.findById(projectId).lean().exec();
     if (!parentProject) {
@@ -111,7 +110,7 @@ export const getUpdate = async (req, res, next) => {
     }
 
     // Sending update
-    res.status(200).json({
+    return res.status(200).json({
       id: update._id,
       title: update.title,
       description: update.description,
