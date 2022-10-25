@@ -1,23 +1,16 @@
 {
-  "name": "server",
+  "name": "tracku_backend",
   "version": "1.0.0",
   "description": "This is the backend for the react project management application. The backend uses Node Js, express and MongoDB",
   "main": "index.js",
   "type": "module",
+  "private": true,
   "scripts": {
-    "dev": "nodemon index.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ChrisEs146/backend-project-management-application.git"
+    "dev": "nodemon ./src/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/ChrisEs146/backend-project-management-application/issues"
-  },
-  "homepage": "https://github.com/ChrisEs146/backend-project-management-application#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
