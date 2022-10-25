@@ -14,7 +14,7 @@ export const getAllProjects = async (req, res, next) => {
     const projects = await Project.find({ user: req.user._id }).lean().exec();
 
     // Sending a response with all projects
-    res.status(200).json(projects);
+    return res.status(200).json(projects);
   } catch (error) {
     next(error);
   }
