@@ -141,12 +141,12 @@ export const updateProject = async (req, res, next) => {
 export const deleteProject = async (req, res, next) => {
   const { projectId } = req.params;
 
-  try {
-    // Checking i f project ID is alid
-    if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      return res.status(400).json({ message: "Project ID is not valid" });
-    }
+  // Checking i f project ID is alid
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    return res.status(400).json({ message: "Project ID is not valid" });
+  }
 
+  try {
     // Finding project
     const project = await Project.findById(projectId).exec();
     if (!project) {
@@ -161,7 +161,7 @@ export const deleteProject = async (req, res, next) => {
     // Deleting the project
     await project.remove();
     // Sending a response with a confirmation
-    res.status(200).json({ message: "Project was deleted successfully" });
+    return res.status(200).json({ message: "Project was deleted successfully" });
   } catch (error) {
     next(error);
   }
