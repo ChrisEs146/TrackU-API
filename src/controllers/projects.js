@@ -95,14 +95,19 @@ export const updateProject = async (req, res, next) => {
   const { title, status, progress, description } = req.body;
   const { projectId } = req.params;
 
-  try {
-    // Checking if project ID is valid
-    if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      return res.status(400).json({ message: "Project ID is not valid" });
-    }
+  // Checking for empty fields
+  if (!title || !status || !progress || !description) {
+    return res.status(400).json({ message: "Fields cannot be empty" });
+  }
 
+  // Checking if project ID is valid
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    return res.status(400).json({ message: "Project ID is not valid" });
+  }
+
+  try {
     // Finding project
-    const project = await Project.findById(projectId).exec();
+    const project = await Project.findById(projectId).lean().exec();
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
@@ -111,23 +116,20 @@ export const updateProject = async (req, res, next) => {
     if (!project.user.equals(req.user._id)) {
       return res.status(401).json({ message: "User not authorized" });
     }
-
-    // Checking for empty fields
-    if (!title || !status || !progress || !description) {
-      return res.status(400).json({ message: "Fields cannot be empty" });
-    }
-
-    // Updating the project
-    project.title = title;
-    project.status = status;
-    project.progress = progress;
-    project.description = description;
-    const updatedProject = await project.save();
-
-    // Sending a response with the updated project
-    res.status(200).json(updatedProject);
   } catch (error) {
     next(error);
+  }
+
+  try {
+    // Updating the project
+    const updatedProject = await Project.findOneAndUpdate(
+      { _id: projectId },
+      { title, status, progress, description },
+      { new: true, runValidators: true }
+    ).exec();
+    return res.status(200).json(updatedProject);
+  } catch (error) {
+    return res.status(400).json({ message: getError(error) });
   }
 };
 
