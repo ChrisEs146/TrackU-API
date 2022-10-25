@@ -128,20 +128,24 @@ export const getUpdate = async (req, res, next) => {
  */
 export const editUpdate = async (req, res, next) => {
   const { title, description } = req.body;
-  const { projectId } = req.params;
-  const { updateId } = req.params;
+  const { projectId, updateId } = req.params;
+
+  // Checking for empty fields
+  if (!title || !description) {
+    return res.status(400).json({ message: "Field cannot be empty" });
+  }
+
+  // Checking if project ID is valid
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    return res.status(400).json({ message: "Project ID is not valid" });
+  }
+
+  // Checking if update ID is valid
+  if (!mongoose.Types.ObjectId.isValid(updateId)) {
+    return res.status(400).json({ message: "Update ID is not valid" });
+  }
 
   try {
-    // Checking if project ID is valid
-    if (!mongoose.Types.ObjectId.isValid(projectId)) {
-      return res.status(400).json({ message: "Project ID is not valid" });
-    }
-
-    // Checking if update ID is valid
-    if (!mongoose.Types.ObjectId.isValid(updateId)) {
-      return res.status(400).json({ message: "Update ID is not valid" });
-    }
-
     // Finding parent project
     const parentProject = await Project.findById(projectId).lean().exec();
     if (!parentProject) {
@@ -149,7 +153,7 @@ export const editUpdate = async (req, res, next) => {
     }
 
     // Finding update
-    const update = await Update.findById(updateId).exec();
+    const update = await Update.findById(updateId).lean().exec();
     if (!update) {
       return res.status(404).json({ message: "Update not found" });
     }
@@ -158,20 +162,20 @@ export const editUpdate = async (req, res, next) => {
     if (update.project.toString() !== projectId) {
       return res.status(400).json({ message: "Unauthorized Update" });
     }
-
-    // Checking for empty fields
-    if (!title || !description) {
-      return res.status(400).json({ message: "Field cannot be empty" });
-    }
-
-    // Updating the project's update
-    update.title = title;
-    update.description = description;
-    const modifiedUpdate = await update.save();
-
-    res.status(200).json(modifiedUpdate);
   } catch (error) {
     next(error);
+  }
+
+  try {
+    // Updating the project's update
+    const modifiedUpdate = await Update.findOneAndUpdate(
+      { _id: updateId },
+      { title, description },
+      { new: true, runValidators: true }
+    ).exec();
+    return res.status(200).json(modifiedUpdate);
+  } catch (error) {
+    return res.status(400).json({ message: getError(error) });
   }
 };
 
