@@ -9,7 +9,7 @@ const userSchema = mongoose.Schema({
     type: String,
     required: [true, "Fullname is required"],
     trim: true,
-    minlength: [4, " Fullname should have at least 4 characters"],
+    minlength: [4, "Fullname should have at least 4 characters"],
   },
   email: {
     type: String,
