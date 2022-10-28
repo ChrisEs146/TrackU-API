@@ -7,7 +7,7 @@ const updateSchema = mongoose.Schema(
       type: String,
       required: [true, "Title is required"],
       trim: true,
-      minlength: [4, "Title should have at least 4 characters."],
+      minlength: [4, "Title should have at least 4 characters"],
       maxlength: [50, "Title cannot have more than 50 characters"],
     },
     description: {
