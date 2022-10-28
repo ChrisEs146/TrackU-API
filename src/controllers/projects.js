@@ -34,16 +34,6 @@ export const addProject = async (req, res, next) => {
     return res.status(400).json({ message: "Fields cannot be empty" });
   }
 
-  // Finding user
-  try {
-    const user = await User.findById(_id).lean().exec();
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-  } catch (error) {
-    next(error);
-  }
-
   //  Creating and validating project
   try {
     const project = await Project.create({ user: _id, title: title, description: description });
