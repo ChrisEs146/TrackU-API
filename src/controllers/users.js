@@ -70,7 +70,7 @@ export const signUp = async (req, res, next) => {
   try {
     const existingUser = await User.findOne({ email: email.toLowerCase() }).lean().exec();
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(409).json({ message: "User already exists" });
     }
   } catch (error) {
     next(error);
