@@ -79,7 +79,7 @@ describe("User", () => {
   describe("Sign up existing user", () => {
     it("Should return status 400", async () => {
       await createUser();
-      const { body } = await supertest(app).post("/users/signup").send(signUp.valid).expect(400);
+      const { body } = await supertest(app).post("/users/signup").send(signUp.valid).expect(409);
       expect(body.message).toBe("User already exists");
     });
   });
