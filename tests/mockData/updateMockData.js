@@ -3,6 +3,10 @@ export const updateData = {
     title: "Navigation ready",
     description: "All the navigation component is done",
   },
+  validEdit: {
+    title: "Pagination component finished",
+    description: "Responsive pagination component ready to be tested",
+  },
   empty: {
     title: "",
     description: "",
