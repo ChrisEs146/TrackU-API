@@ -4,6 +4,31 @@ import Update from "./update.js";
 import bcrypt from "bcryptjs";
 import validator from "validator";
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       required:
+ *         - fullName
+ *         - email
+ *         - password
+ *       properties:
+ *         fullName:
+ *           type: string
+ *           description: User's fullname
+ *         email:
+ *           type: string
+ *           description: User's email
+ *         password:
+ *           type: string
+ *           description: User's password
+ *       example:
+ *         fullName: Frank Smith
+ *         email: frank07@email.com
+ *         password: passWord14%
+ */
 const userSchema = mongoose.Schema({
   fullName: {
     type: String,
