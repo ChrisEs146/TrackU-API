@@ -204,6 +204,51 @@ router.post("/logout", logOut);
  *                 message: Token Expired
  */
 router.get("/refresh", refresh);
+
+/**
+ * @swagger
+ * /users/info:
+ *   get:
+ *     tags: [User]
+ *     summary: Get user's information
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 fullName:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *               example:
+ *                 fullName: Frank Smith
+ *                 email: frank07@email.com
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *               example:
+ *                 message: Invalid Token
+ *       403:
+ *         description: forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *               example:
+ *                 message: Token not found
+ */
 router.get("/info", auth, getUser);
 router.patch("/update-user", auth, updateUsername);
 router.patch("/update-password", auth, updateUserPassword);
