@@ -174,6 +174,35 @@ router.post("/signup", signUp);
  *                 message: Cookies Deleted
  */
 router.post("/logout", logOut);
+
+/**
+ * @swagger
+ * /users/refresh:
+ *   get:
+ *     tags: [User]
+ *     summary: Refresh access token using token in httpOnly cookie
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *               example:
+ *                 message: Token Expired
+ */
 router.get("/refresh", refresh);
 router.get("/info", auth, getUser);
 router.patch("/update-user", auth, updateUsername);
