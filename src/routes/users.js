@@ -17,26 +17,67 @@ const router = express.Router();
  * /users/signin:
  *   post:
  *     tags: [User]
- *     summary: Sign in a user
+ *     summary: Sign in a user and set token in httpOnly cookie
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: "#/components/schemas/UserSignIn"
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *             example:
+ *               email: frank07@email.com
+ *               password: passWord14%
  *     responses:
  *       200:
  *         description: Success
  *         content:
  *           application/json:
  *             schema:
- *               $ref: "#/components/schemas/UserResponse"
+ *               type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
  *       400:
  *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *               example:
+ *                 message: Fields cannot be empty
  *       401:
  *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *               example:
+ *                 message: Invalid credentials
  *       404:
  *         description: Not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *               example:
+ *                 message: User does not exists
  */
 router.post("/signin", signIn);
 
