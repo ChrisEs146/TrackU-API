@@ -153,6 +153,26 @@ router.post("/signin", signIn);
  *                 message: User already exists
  */
 router.post("/signup", signUp);
+
+/**
+ * @swagger
+ * /users/logOut:
+ *   post:
+ *     tags: [User]
+ *     summary: Clear user's cookie
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *               example:
+ *                 message: Cookies Deleted
+ */
 router.post("/logout", logOut);
 router.get("/refresh", refresh);
 router.get("/info", auth, getUser);
