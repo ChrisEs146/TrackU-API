@@ -92,18 +92,65 @@ router.post("/signin", signIn);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: "#/components/schemas/UserSignUp"
+ *             type: object
+ *             required:
+ *               - fullName
+ *               - email
+ *               - password
+ *             properties:
+ *               fullName:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               confirmPassword:
+ *                 type: string
+ *             example:
+ *               fullName: Frank Smith
+ *               email: frank07@email.com
+ *               password: passWord14%
+ *               confirmPassword: passWord14%
  *     responses:
  *       201:
  *         description: Successfully Created
  *         content:
  *           application/json:
  *             schema:
- *               $ref: "#/components/schemas/UserSignUpResponse"
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                 fullName:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *               example:
+ *                 _id: 507f1f77bcf86cd799439011
+ *                 fullName: Frank Smith
+ *                 email: frank07@email.com
  *       400:
  *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *               example:
+ *                 message: Fields cannot be empty
  *       409:
  *         description: Conflict
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *               example:
+ *                 message: User already exists
  */
 router.post("/signup", signUp);
 router.post("/logout", logOut);
