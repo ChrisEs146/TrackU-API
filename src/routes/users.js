@@ -250,6 +250,78 @@ router.get("/refresh", refresh);
  *                 message: Token not found
  */
 router.get("/info", auth, getUser);
+
+/**
+ * @swagger
+ * /users/update-user:
+ *   patch:
+ *     tags: [User]
+ *     summary: Update user's name
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - newFullName
+ *             properties:
+ *               newFullName:
+ *                 type: string
+ *             example:
+ *               newFullName: Frank Morello
+ *     responses:
+ *       200:
+ *         description: Successfully updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                 fullName:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *               example:
+ *                 _id: 507f1f77bcf86cd799439011
+ *                 fullName: Frank Morello
+ *                 email: frank07@email.com
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *               example:
+ *                 message: Fields cannot be empty
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *               example:
+ *                 message: Invalid Token
+ *       403:
+ *         description: forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *               example:
+ *                 message: Token not found
+ */
 router.patch("/update-user", auth, updateUsername);
 router.patch("/update-password", auth, updateUserPassword);
 router.delete("/delete-user", auth, deleteUser);
