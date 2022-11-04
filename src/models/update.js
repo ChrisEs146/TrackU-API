@@ -1,5 +1,38 @@
 import mongoose from "mongoose";
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Update:
+ *       type: object
+ *       required:
+ *         - project
+ *         - title
+ *         - description
+ *       properties:
+ *         project:
+ *           type: string
+ *           description: Auto-generated project ID
+ *         title:
+ *           type: string
+ *           description: Project's title
+ *         description:
+ *           type: string
+ *           description: Project's description
+ *         createdAt:
+ *           type: date
+ *           description: Auto-generated date
+ *         updatedAt:
+ *           type: date
+ *           description: Auto-generated date
+ *       example:
+ *         project: 507f1f77bcf86cd799439011
+ *         title: Navigation component is ready
+ *         description: The navigation component completed and fully responsive
+ *         createdAt: 2022-02-26T17:08:13.930Z
+ *         updatedAt: 2022-02-26T17:08:13.008Z
+ **/
 const updateSchema = mongoose.Schema(
   {
     project: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Project" },
