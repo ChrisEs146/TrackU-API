@@ -7,7 +7,6 @@ import mongoose from "mongoose";
  *     Project:
  *       type: object
  *       required:
- *         - user
  *         - title
  *         - description
  *         - status
@@ -15,29 +14,41 @@ import mongoose from "mongoose";
  *       properties:
  *         user:
  *           type: string
- *           description: Auto-generated user ID
+ *           description: Owner's ID | Auto-generated in User model
+ *         _id:
+ *           type: string
+ *           description: Auto-generated ID
  *         title:
  *           type: string
+ *           minLength: 4
+ *           maxLength: 50
  *           description: Project's title
  *         description:
  *           type: string
+ *           minLength: 4
+ *           maxLength: 800
  *           description: Project's description
  *         status:
  *           type: string
  *           description: Could be "Not started", "In Progress" or "Completed"
  *         progress:
  *           type: number
+ *           minimum: 0
+ *           maximum: 100
  *           description: Project's progress
  *         createdAt:
- *           type: date
+ *           type: string
+ *           format: date-time
  *           description: Auto-generated date
  *         updatedAt:
- *           type: date
+ *           type: string
+ *           format: date-time
  *           description: Auto-generated date
  *       example:
  *         user: 507f1f77bcf86cd799439011
+ *         _id: 507f1f77bcf86cd799439089
  *         title: React Web Application
- *         description: A simple web application in react
+ *         description: A simple web application with react
  *         status: Not Started
  *         progress: 0
  *         createdAt: 2022-02-26T17:08:13.930Z
