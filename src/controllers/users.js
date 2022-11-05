@@ -90,7 +90,7 @@ export const signUp = async (req, res, next) => {
  * @route PATCH /users/update-user
  * @access Private
  */
-export const updateUsername = async (req, res, next) => {
+export const updateUsername = async (req, res) => {
   const { newFullName } = req.body;
   const userId = req.user._id;
 
@@ -116,7 +116,7 @@ export const updateUsername = async (req, res, next) => {
 
 /**
  * Controller to update a user's password.
- * @route PATCH /uses/update-password
+ * @route PATCH /users/update-password
  * @access Private
  */
 export const updateUserPassword = async (req, res, next) => {
