@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import Project from "../models/project.js";
-import User from "../models/user.js";
 import { getError } from "../utils/getError.js";
 
 /**
@@ -25,7 +24,7 @@ export const getAllProjects = async (req, res, next) => {
  * @route POST /projects
  * @access Private
  */
-export const addProject = async (req, res, next) => {
+export const addProject = async (req, res) => {
   const { title, description } = req.body;
   const { _id } = req.user;
 
