@@ -97,6 +97,7 @@ router.post("/signin", signIn);
  *               - fullName
  *               - email
  *               - password
+ *               - confirmPassword
  *             properties:
  *               fullName:
  *                 type: string
@@ -210,7 +211,7 @@ router.get("/refresh", refresh);
  * /users/info:
  *   get:
  *     tags: [User]
- *     summary: Get user's information
+ *     summary: Get information from an authenticated user
  *     responses:
  *       200:
  *         description: Success
@@ -256,7 +257,7 @@ router.get("/info", auth, getUser);
  * /users/update-user:
  *   patch:
  *     tags: [User]
- *     summary: Update user's name
+ *     summary: Update name of an authenticated user
  *     requestBody:
  *       required: true
  *       content:
@@ -272,7 +273,7 @@ router.get("/info", auth, getUser);
  *               newFullName: Frank Morello
  *     responses:
  *       200:
- *         description: Successfully updated
+ *         description: Success
  *         content:
  *           application/json:
  *             schema:
