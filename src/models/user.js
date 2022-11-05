@@ -15,8 +15,12 @@ import validator from "validator";
  *         - email
  *         - password
  *       properties:
+ *         _id:
+ *           type: string
+ *           description: Auto-generated ID
  *         fullName:
  *           type: string
+ *           minLength: 4
  *           description: User's fullname
  *         email:
  *           type: string
@@ -25,6 +29,7 @@ import validator from "validator";
  *           type: string
  *           description: User's password
  *       example:
+ *         _id: 507f1f77bcf86cd799439011
  *         fullName: Frank Smith
  *         email: frank07@email.com
  *         password: passWord14%
