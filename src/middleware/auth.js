@@ -17,7 +17,11 @@ export const auth = (req, res, next) => {
       if (error) {
         return res.status(401).json({ message: "Invalid Token" });
       }
+
       req.user = await User.findById(decoded._id).exec();
+      if (!req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
       next();
     });
   } catch (error) {
