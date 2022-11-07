@@ -135,35 +135,32 @@ router.post("/:projectId", auth, addUpdate);
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 updates:
- *                   type: array
- *                   nullable: true
- *                   items:
- *                     type: object
- *                     properties:
- *                       _id:
- *                         type: string
- *                       project:
- *                         type: string
- *                       title:
- *                         type: string
- *                       description:
- *                         type: string
- *                       createdAt:
- *                         type: string
- *                         format: date-time
- *                       updatedAt:
- *                         type: string
- *                         format: date-time
- *                     example:
- *                       project: 507f1f77bcf86cd799439011
- *                       _id: 507f1f77bcf86cd799439089
- *                       title: Navigation is completed
- *                       description: Navigation completed and fully responsive
- *                       createdAt: 2022-02-26T17:08:13.930Z
- *                       updatedAt: 2022-02-26T17:08:13.008Z
+ *               type: array
+ *               nullable: true
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                   project:
+ *                     type: string
+ *                   title:
+ *                     type: string
+ *                   description:
+ *                     type: string
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                   updatedAt:
+ *                     type: string
+ *                     format: date-time
+ *                 example:
+ *                   project: 507f1f77bcf86cd799439011
+ *                   _id: 507f1f77bcf86cd799439089
+ *                   title: Navigation is completed
+ *                   description: Navigation completed and fully responsive
+ *                   createdAt: 2022-02-26T17:08:13.930Z
+ *                   updatedAt: 2022-02-26T17:08:13.008Z
  *       400:
  *         description: Bad request
  *         content:
