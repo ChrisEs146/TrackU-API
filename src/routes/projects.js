@@ -116,41 +116,38 @@ router.post("/", auth, addProject);
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 projects:
- *                   type: array
- *                   nullable: true
- *                   items:
- *                     type: object
- *                     properties:
- *                       _id:
- *                         type: string
- *                       user:
- *                         type: string
- *                       title:
- *                         type: string
- *                       description:
- *                         type: string
- *                       status:
- *                         type: string
- *                       progress:
- *                         type: number
- *                       createdAt:
- *                         type: string
- *                         format: date-time
- *                       updatedAt:
- *                         type: string
- *                         format: date-time
- *                     example:
- *                       user: 507f1f77bcf86cd799439011
- *                       _id: 507f1f77bcf86cd799439089
- *                       title: React Web Application
- *                       description: A simple web application in react
- *                       status: Not Started
- *                       progress: 0
- *                       createdAt: 2022-02-26T17:08:13.930Z
- *                       updatedAt: 2022-02-26T17:08:13.008Z
+ *               type: array
+ *               nullable: true
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                   user:
+ *                     type: string
+ *                   title:
+ *                     type: string
+ *                   description:
+ *                     type: string
+ *                   status:
+ *                     type: string
+ *                   progress:
+ *                     type: number
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                   updatedAt:
+ *                     type: string
+ *                     format: date-time
+ *                 example:
+ *                   user: 507f1f77bcf86cd799439011
+ *                   _id: 507f1f77bcf86cd799439089
+ *                   title: React Web Application
+ *                   description: A simple web application in react
+ *                   status: Not Started
+ *                   progress: 0
+ *                   createdAt: 2022-02-26T17:08:13.930Z
+ *                   updatedAt: 2022-02-26T17:08:13.008Z
  *       401:
  *         description: Unauthorized
  *         content:
