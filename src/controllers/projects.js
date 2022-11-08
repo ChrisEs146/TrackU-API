@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import Project from "../models/project.js";
-import User from "../models/user.js";
 import { getError } from "../utils/getError.js";
 
 /**
@@ -25,23 +24,13 @@ export const getAllProjects = async (req, res, next) => {
  * @route POST /projects
  * @access Private
  */
-export const addProject = async (req, res, next) => {
+export const addProject = async (req, res) => {
   const { title, description } = req.body;
   const { _id } = req.user;
 
   // // Checking for empty fields
   if (!title || !description) {
     return res.status(400).json({ message: "Fields cannot be empty" });
-  }
-
-  // Finding user
-  try {
-    const user = await User.findById(_id).lean().exec();
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-  } catch (error) {
-    next(error);
   }
 
   //  Creating and validating project

@@ -4,12 +4,42 @@ import Update from "./update.js";
 import bcrypt from "bcryptjs";
 import validator from "validator";
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       required:
+ *         - fullName
+ *         - email
+ *         - password
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: Auto-generated ID
+ *         fullName:
+ *           type: string
+ *           minLength: 4
+ *           description: User's fullname
+ *         email:
+ *           type: string
+ *           description: User's email
+ *         password:
+ *           type: string
+ *           description: User's password
+ *       example:
+ *         _id: 507f1f77bcf86cd799439011
+ *         fullName: Frank Smith
+ *         email: frank07@email.com
+ *         password: passWord14%
+ */
 const userSchema = mongoose.Schema({
   fullName: {
     type: String,
     required: [true, "Fullname is required"],
     trim: true,
-    minlength: [4, " Fullname should have at least 4 characters"],
+    minlength: [4, "Fullname should have at least 4 characters"],
   },
   email: {
     type: String,

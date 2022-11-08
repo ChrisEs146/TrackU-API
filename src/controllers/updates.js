@@ -123,8 +123,8 @@ export const getUpdate = async (req, res, next) => {
 };
 
 /**
- * Controller to modify or update a project's update.
- * @route POST /updates/project/:projectId/update/:updateId
+ * Controller to modify or edit a project's update.
+ * @route PUT /updates/project/:projectId/update/:updateId
  * @access Private
  */
 export const editUpdate = async (req, res, next) => {
@@ -133,7 +133,7 @@ export const editUpdate = async (req, res, next) => {
 
   // Checking for empty fields
   if (!title || !description) {
-    return res.status(400).json({ message: "Field cannot be empty" });
+    return res.status(400).json({ message: "Fields cannot be empty" });
   }
 
   // Checking if project ID is valid
@@ -219,7 +219,7 @@ export const deleteUpdate = async (req, res, next) => {
 
     // Deleting update
     await update.remove();
-    return res.status(200).json({ message: "Updated was deleted successfully" });
+    return res.status(200).json({ message: "Update was deleted successfully" });
   } catch (error) {
     next(error);
   }

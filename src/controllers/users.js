@@ -14,7 +14,7 @@ export const signIn = async (req, res, next) => {
 
   // Checking for possible blank fields
   if (!email || !password) {
-    return res.status(400).json({ message: "Fields cannot be empty." });
+    return res.status(400).json({ message: "Fields cannot be empty" });
   }
 
   try {
@@ -58,19 +58,19 @@ export const signUp = async (req, res, next) => {
 
   // Checking for possible blank fields
   if (!fullName || !email || !password || !confirmPassword) {
-    return res.status(400).json({ message: "Fields cannot be empty." });
+    return res.status(400).json({ message: "Fields cannot be empty" });
   }
 
   // Checking if passwords match
   if (password !== confirmPassword) {
-    return res.status(400).json({ message: "Passwords do not match." });
+    return res.status(400).json({ message: "Passwords do not match" });
   }
 
   // Checking for existing user
   try {
     const existingUser = await User.findOne({ email: email.toLowerCase() }).lean().exec();
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists." });
+      return res.status(409).json({ message: "User already exists" });
     }
   } catch (error) {
     next(error);
@@ -79,7 +79,7 @@ export const signUp = async (req, res, next) => {
   // Creating and validating user data
   try {
     const user = await User.create({ fullName, email, password });
-    return res.status(200).json({ _id: user._id, fullName: user.fullName, email: user.email });
+    return res.status(201).json({ _id: user._id, fullName: user.fullName, email: user.email });
   } catch (error) {
     return res.status(400).json({ message: getError(error) });
   }
@@ -90,23 +90,13 @@ export const signUp = async (req, res, next) => {
  * @route PATCH /users/update-user
  * @access Private
  */
-export const updateUsername = async (req, res, next) => {
+export const updateUsername = async (req, res) => {
   const { newFullName } = req.body;
   const userId = req.user._id;
 
   // Checking for possible blank field
   if (!newFullName) {
-    return res.status(400).json({ message: "Fields cannot be empty." });
-  }
-
-  // Finding user
-  try {
-    const existingUser = await User.findById(userId).exec();
-    if (!existingUser) {
-      return res.status(404).json({ message: "User not found" });
-    }
-  } catch (error) {
-    next(error);
+    return res.status(400).json({ message: "Fields cannot be empty" });
   }
 
   // Updating user's name
@@ -126,7 +116,7 @@ export const updateUsername = async (req, res, next) => {
 
 /**
  * Controller to update a user's password.
- * @route PATCH /uses/update-password
+ * @route PATCH /users/update-password
  * @access Private
  */
 export const updateUserPassword = async (req, res, next) => {
@@ -135,7 +125,7 @@ export const updateUserPassword = async (req, res, next) => {
 
   // Checking for possible blank fields
   if (!currentPassword || !newPassword || !confirmPassword) {
-    return res.status(400).json({ message: "Fields cannot be empty." });
+    return res.status(400).json({ message: "Fields cannot be empty" });
   }
 
   // Checking if passwords match
@@ -180,14 +170,14 @@ export const deleteUser = async (req, res, next) => {
 
   // Checking for possible empty fields
   if (!email || !password) {
-    return res.status(400).json({ message: "Fields cannot be empty." });
+    return res.status(400).json({ message: "Fields cannot be empty" });
   }
 
   try {
     // Finding user
     const existingUser = await User.findOne({ email: email.toLowerCase() }).exec();
     if (!existingUser) {
-      return res.status(404).json({ message: "User not found." });
+      return res.status(404).json({ message: "User not found" });
     }
 
     if (!existingUser._id.equals(userId)) {
