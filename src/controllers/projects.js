@@ -1,5 +1,11 @@
-import mongoose from "mongoose";
-import Project from "../models/project.js";
+import {
+  createProject,
+  findProject,
+  findProjects,
+  isValidMongooseId,
+  removeProject,
+  editProject,
+} from "../services/projectService.js";
 import { getError } from "../utils/getError.js";
 
 /**
@@ -10,7 +16,7 @@ import { getError } from "../utils/getError.js";
 export const getAllProjects = async (req, res, next) => {
   try {
     // Finding all projects
-    const projects = await Project.find({ user: req.user._id }).lean().exec();
+    const projects = await findProjects(req.user._id);
 
     // Sending a response with all projects
     return res.status(200).json(projects);
@@ -35,7 +41,7 @@ export const addProject = async (req, res) => {
 
   //  Creating and validating project
   try {
-    const project = await Project.create({ user: _id, title: title, description: description });
+    const project = await createProject(_id, title, description);
     return res.status(201).json(project);
   } catch (error) {
     return res.status(400).json({ message: getError(error) });
@@ -52,13 +58,13 @@ export const getProject = async (req, res, next) => {
   const { projectId } = req.params;
 
   // Checking if project ID is valid
-  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+  if (!isValidMongooseId(projectId)) {
     return res.status(400).json({ message: "Project ID is not valid" });
   }
 
   try {
     // Finding project
-    const project = await Project.findById(projectId).lean().exec();
+    const project = await findProject(projectId);
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
@@ -90,13 +96,13 @@ export const updateProject = async (req, res, next) => {
   }
 
   // Checking if project ID is valid
-  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+  if (!isValidMongooseId(projectId)) {
     return res.status(400).json({ message: "Project ID is not valid" });
   }
 
   try {
     // Finding project
-    const project = await Project.findById(projectId).lean().exec();
+    const project = await findProject(projectId);
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
@@ -111,11 +117,7 @@ export const updateProject = async (req, res, next) => {
 
   try {
     // Updating the project
-    const updatedProject = await Project.findOneAndUpdate(
-      { _id: projectId },
-      { title, status, progress, description },
-      { new: true, runValidators: true }
-    ).exec();
+    const updatedProject = await editProject(projectId, title, status, progress, description);
     return res.status(200).json(updatedProject);
   } catch (error) {
     return res.status(400).json({ message: getError(error) });
@@ -131,13 +133,13 @@ export const deleteProject = async (req, res, next) => {
   const { projectId } = req.params;
 
   // Checking i f project ID is alid
-  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+  if (!isValidMongooseId(projectId)) {
     return res.status(400).json({ message: "Project ID is not valid" });
   }
 
   try {
     // Finding project
-    const project = await Project.findById(projectId).exec();
+    const project = await findProject(projectId);
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
@@ -148,7 +150,7 @@ export const deleteProject = async (req, res, next) => {
     }
 
     // Deleting the project
-    await project.remove();
+    await removeProject(project);
     // Sending a response with a confirmation
     return res.status(200).json({ message: "Project was deleted successfully" });
   } catch (error) {
