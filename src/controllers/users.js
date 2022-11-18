@@ -1,8 +1,14 @@
-import bcrypt from "bcryptjs";
-import User from "../models/user.js";
 import Jwt from "jsonwebtoken";
 import { createToken } from "../utils/tokenCreator.js";
 import { getError } from "../utils/getError.js";
+import {
+  createUser,
+  findUser,
+  isValidPassword,
+  saveNewPassword,
+  updateUserName,
+  removeUser,
+} from "../services/userService.js";
 
 /**
  * Controller to sign in a user.
@@ -19,14 +25,14 @@ export const signIn = async (req, res, next) => {
 
   try {
     // Finding user
-    const existingUser = await User.findOne({ email: email.toLowerCase() }).lean().exec();
+    const existingUser = await findUser(email);
     if (!existingUser) {
       return res.status(404).json({ message: "User does not exist" });
     }
 
     // Checking for valid password
-    const isValidPassword = await bcrypt.compare(password, existingUser.password);
-    if (!isValidPassword) {
+    const validPassword = await isValidPassword(password, existingUser.password);
+    if (!validPassword) {
       return res.status(401).json({ message: "Invalid Credentials" });
     }
 
@@ -68,7 +74,7 @@ export const signUp = async (req, res, next) => {
 
   // Checking for existing user
   try {
-    const existingUser = await User.findOne({ email: email.toLowerCase() }).lean().exec();
+    const existingUser = await findUser(email);
     if (existingUser) {
       return res.status(409).json({ message: "User already exists" });
     }
@@ -78,7 +84,7 @@ export const signUp = async (req, res, next) => {
 
   // Creating and validating user data
   try {
-    const user = await User.create({ fullName, email, password });
+    const user = await createUser(fullName, email, password);
     return res.status(201).json({ _id: user._id, fullName: user.fullName, email: user.email });
   } catch (error) {
     return res.status(400).json({ message: getError(error) });
@@ -101,11 +107,7 @@ export const updateUsername = async (req, res) => {
 
   // Updating user's name
   try {
-    const updatedUser = await User.findOneAndUpdate(
-      { _id: userId },
-      { fullName: newFullName },
-      { new: true, runValidators: true }
-    );
+    const updatedUser = await updateUserName(userId, newFullName);
     return res
       .status(200)
       .json({ _id: updatedUser._id, fullName: updatedUser.fullName, email: updatedUser.email });
@@ -135,21 +137,20 @@ export const updateUserPassword = async (req, res, next) => {
 
   try {
     // Finding user
-    const existingUser = await User.findById(userId).exec();
+    const existingUser = await findUser(undefined, userId);
     if (!existingUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
     // Checking if current password is valid
-    const isValidPassword = await bcrypt.compare(currentPassword, existingUser.password);
-    if (!isValidPassword) {
+    const validPassword = await isValidPassword(currentPassword, existingUser.password);
+    if (!validPassword) {
       return res.status(400).json({ message: "Invalid Password" });
     }
 
     // Updating user's password
     try {
-      existingUser.password = newPassword;
-      await existingUser.save();
+      await saveNewPassword(existingUser, newPassword);
       return res.status(200).json({ message: "Password updated successfully" });
     } catch (error) {
       return res.status(400).json({ message: getError(error) });
@@ -175,7 +176,7 @@ export const deleteUser = async (req, res, next) => {
 
   try {
     // Finding user
-    const existingUser = await User.findOne({ email: email.toLowerCase() }).exec();
+    const existingUser = await findUser(email);
     if (!existingUser) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -185,13 +186,13 @@ export const deleteUser = async (req, res, next) => {
     }
 
     // Checking if password is valid
-    const isValidPassword = await bcrypt.compare(password, existingUser.password);
-    if (!isValidPassword) {
+    const validPassword = await isValidPassword(password, existingUser.password);
+    if (!validPassword) {
       return res.status(400).json({ message: "Invalid Credentials" });
     }
 
     // Deleting user
-    await existingUser.remove();
+    await removeUser(existingUser);
     return res
       .status(200)
       .json({ _id: existingUser._id, fullName: existingUser.fullName, email: existingUser.email });
@@ -218,7 +219,7 @@ export const refresh = async (req, res, next) => {
       if (error) {
         return res.status(401).json({ message: "Token Expired" });
       }
-      const authUser = await User.findOne({ email: decoded.email }).lean().exec();
+      const authUser = await findUser(decoded.email);
 
       if (!authUser) {
         return res.status(401).json({ message: "User not authorized" });
