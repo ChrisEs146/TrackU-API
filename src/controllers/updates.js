@@ -1,6 +1,11 @@
-import Update from "../models/update.js";
-import Project from "../models/project.js";
-import mongoose from "mongoose";
+import { findProject, isValidMongooseId } from "../services/projectService.js";
+import {
+  createUpdate,
+  findUpdate,
+  findUpdates,
+  removeUpdate,
+  modifyUpdate,
+} from "../services/updateService.js";
 import { getError } from "../utils/getError.js";
 
 /**
@@ -12,19 +17,19 @@ export const getUpdates = async (req, res, next) => {
   const { projectId } = req.params;
 
   // Checking if project ID is valid
-  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+  if (!isValidMongooseId(projectId)) {
     return res.status(400).json({ message: "Project ID is not valid" });
   }
 
   try {
     // Finding parent project
-    const parentProject = await Project.findById(projectId).lean().exec();
+    const parentProject = await findProject(projectId);
     if (!parentProject) {
       return res.status(404).json({ message: "Parent project not found" });
     }
 
     // Getting updates from project
-    const updates = await Update.find({ project: projectId }).lean().exec();
+    const updates = await findUpdates(projectId);
     return res.status(200).json(updates);
   } catch (error) {
     next(error);
@@ -46,13 +51,13 @@ export const addUpdate = async (req, res, next) => {
   }
 
   // Checking if project ID is valid
-  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+  if (!isValidMongooseId(projectId)) {
     return res.status(400).json({ message: "Project ID is not valid" });
   }
 
   // Finding parent project
   try {
-    const parentProject = await Project.findById(projectId).lean().exec();
+    const parentProject = await findProject(projectId);
     if (!parentProject) {
       return res.status(404).json({ message: "Parent project not found" });
     }
@@ -62,11 +67,7 @@ export const addUpdate = async (req, res, next) => {
 
   // Creating new update
   try {
-    const update = await Update.create({
-      project: projectId,
-      title: title,
-      description: description,
-    });
+    const update = await createUpdate(projectId, title, description);
     return res.status(201).json(update);
   } catch (error) {
     return res.status(400).json({ message: getError(error) });
@@ -83,24 +84,24 @@ export const getUpdate = async (req, res, next) => {
   const { projectId, updateId } = req.params;
 
   // Checking if project ID is valid
-  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+  if (!isValidMongooseId(projectId)) {
     return res.status(400).json({ message: "Project ID is not valid" });
   }
 
   // Checking if update ID is valid
-  if (!mongoose.Types.ObjectId.isValid(updateId)) {
+  if (!isValidMongooseId(updateId)) {
     return res.status(400).json({ message: "Update ID is not valid" });
   }
 
   try {
     // Finding parent project
-    const parentProject = await Project.findById(projectId).lean().exec();
+    const parentProject = await findProject(projectId);
     if (!parentProject) {
       return res.status(404).json({ message: "Parent project not found" });
     }
 
     // Finding update
-    const update = await Update.findById(updateId).lean().exec();
+    const update = await findUpdate(updateId, true);
     if (!update) {
       return res.status(404).json({ message: "Update not found" });
     }
@@ -137,24 +138,24 @@ export const editUpdate = async (req, res, next) => {
   }
 
   // Checking if project ID is valid
-  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+  if (!isValidMongooseId(projectId)) {
     return res.status(400).json({ message: "Project ID is not valid" });
   }
 
   // Checking if update ID is valid
-  if (!mongoose.Types.ObjectId.isValid(updateId)) {
+  if (!isValidMongooseId(updateId)) {
     return res.status(400).json({ message: "Update ID is not valid" });
   }
 
   try {
     // Finding parent project
-    const parentProject = await Project.findById(projectId).lean().exec();
+    const parentProject = await findProject(projectId);
     if (!parentProject) {
       return res.status(404).json({ message: "Parent project not found" });
     }
 
     // Finding update
-    const update = await Update.findById(updateId).lean().exec();
+    const update = await findUpdate(updateId, true);
     if (!update) {
       return res.status(404).json({ message: "Update not found" });
     }
@@ -169,11 +170,7 @@ export const editUpdate = async (req, res, next) => {
 
   try {
     // Updating the project's update
-    const modifiedUpdate = await Update.findOneAndUpdate(
-      { _id: updateId },
-      { title, description },
-      { new: true, runValidators: true }
-    ).exec();
+    const modifiedUpdate = await modifyUpdate(updateId, title, description);
     return res.status(200).json(modifiedUpdate);
   } catch (error) {
     return res.status(400).json({ message: getError(error) });
@@ -190,24 +187,24 @@ export const deleteUpdate = async (req, res, next) => {
   const { projectId, updateId } = req.params;
 
   // Checking if project ID is valid
-  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+  if (!isValidMongooseId(projectId)) {
     return res.status(400).json({ message: "Project ID is not valid" });
   }
 
   // Checking if update ID is valid
-  if (!mongoose.Types.ObjectId.isValid(updateId)) {
+  if (!isValidMongooseId(updateId)) {
     return res.status(400).json({ message: "Update ID is not valid" });
   }
 
   try {
     // Finding parent project
-    const parentProject = await Project.findById(projectId).lean().exec();
+    const parentProject = await findProject(projectId);
     if (!parentProject) {
       return res.status(404).json({ message: "Parent project not found" });
     }
 
     // Finding update
-    const update = await Update.findById(updateId).exec();
+    const update = await findUpdate(updateId);
     if (!update) {
       return res.status(404).json({ message: "Update not found" });
     }
@@ -218,7 +215,7 @@ export const deleteUpdate = async (req, res, next) => {
     }
 
     // Deleting update
-    await update.remove();
+    await removeUpdate(update);
     return res.status(200).json({ message: "Update was deleted successfully" });
   } catch (error) {
     next(error);
