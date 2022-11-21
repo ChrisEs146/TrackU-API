@@ -1,4 +1,3 @@
-// Creates a jwt token
 import Jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
