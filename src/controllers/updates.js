@@ -23,7 +23,7 @@ export const getUpdates = async (req, res, next) => {
 
   try {
     // Finding parent project
-    const parentProject = await findProject(projectId);
+    const parentProject = await findProject(projectId, true);
     if (!parentProject) {
       return res.status(404).json({ message: "Parent project not found" });
     }
@@ -57,7 +57,7 @@ export const addUpdate = async (req, res, next) => {
 
   // Finding parent project
   try {
-    const parentProject = await findProject(projectId);
+    const parentProject = await findProject(projectId, true);
     if (!parentProject) {
       return res.status(404).json({ message: "Parent project not found" });
     }
@@ -95,7 +95,7 @@ export const getUpdate = async (req, res, next) => {
 
   try {
     // Finding parent project
-    const parentProject = await findProject(projectId);
+    const parentProject = await findProject(projectId, true);
     if (!parentProject) {
       return res.status(404).json({ message: "Parent project not found" });
     }
@@ -149,7 +149,7 @@ export const editUpdate = async (req, res, next) => {
 
   try {
     // Finding parent project
-    const parentProject = await findProject(projectId);
+    const parentProject = await findProject(projectId, true);
     if (!parentProject) {
       return res.status(404).json({ message: "Parent project not found" });
     }
@@ -198,7 +198,7 @@ export const deleteUpdate = async (req, res, next) => {
 
   try {
     // Finding parent project
-    const parentProject = await findProject(projectId);
+    const parentProject = await findProject(projectId, true);
     if (!parentProject) {
       return res.status(404).json({ message: "Parent project not found" });
     }
