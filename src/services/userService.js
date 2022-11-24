@@ -14,7 +14,7 @@ export const findUser = async function (email, userId = undefined) {
     if (userId) {
       possibleUser = await User.findById(userId).exec();
     } else {
-      possibleUser = await User.findOne({ email: email.toLowerCase() }).lean().exec();
+      possibleUser = await User.findOne({ email: email.toLowerCase() }).exec();
     }
     return possibleUser;
   } catch (error) {
