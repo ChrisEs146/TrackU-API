@@ -27,11 +27,18 @@ export const findProjects = async function (userId) {
 /**
  * Finds and returns a project.
  * @param {mongoose.Types.ObjectId} projectId
+ * @param {boolean} withLean Flag to find a project with the lean method.
+ * Set by default to **false**.
  * @returns Project
  */
-export const findProject = async function (projectId) {
+export const findProject = async function (projectId, withLean = false) {
   try {
-    const project = await Project.findById(projectId).lean().exec();
+    let project;
+    if (withLean) {
+      project = await Project.findById(projectId).lean().exec();
+    } else {
+      project = await Project.findById(projectId).exec();
+    }
     return project;
   } catch (error) {
     throw error;

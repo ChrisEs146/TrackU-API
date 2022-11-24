@@ -19,9 +19,11 @@ export const findUpdates = async function (projectId) {
 /**
  * Finds and returns an update.
  * @param {mongoose.Types.ObjectId} updateId
+ * @param {boolean} withLean Flag to find an update with the lean method.
+ * Set by default to **false**
  * @returns Update
  */
-export const findUpdate = async function (updateId, withLean = undefined) {
+export const findUpdate = async function (updateId, withLean = false) {
   try {
     let update;
     if (withLean) {

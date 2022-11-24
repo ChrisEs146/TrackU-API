@@ -64,7 +64,7 @@ export const getProject = async (req, res, next) => {
 
   try {
     // Finding project
-    const project = await findProject(projectId);
+    const project = await findProject(projectId, true);
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
@@ -102,7 +102,7 @@ export const updateProject = async (req, res, next) => {
 
   try {
     // Finding project
-    const project = await findProject(projectId);
+    const project = await findProject(projectId, true);
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
