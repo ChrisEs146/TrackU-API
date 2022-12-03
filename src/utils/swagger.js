@@ -24,7 +24,7 @@ const options = {
     ],
     servers: [
       {
-        url: `http://localhost:${process.env.PORT}`,
+        url: `https://tracku-api.cyclic.app`,
       },
     ],
   },
