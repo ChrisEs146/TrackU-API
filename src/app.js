@@ -8,6 +8,8 @@ import updateRoutes from "./routes/updates.js";
 import { errorHandler } from "./middleware/error.js";
 import { connectionDB } from "./DBconnection/connection.js";
 import { specs } from "./utils/swagger.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
 connectionDB();
