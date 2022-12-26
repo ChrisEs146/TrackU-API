@@ -9,8 +9,7 @@ import mongoose from "mongoose";
  */
 export const findUpdates = async function (projectId) {
   try {
-    const updates = await Update.find({ project: projectId }).lean().exec();
-    return updates;
+    return await Update.find({ project: projectId }).lean().exec();
   } catch (error) {
     throw error;
   }
@@ -25,13 +24,10 @@ export const findUpdates = async function (projectId) {
  */
 export const findUpdate = async function (updateId, withLean = false) {
   try {
-    let update;
-    if (withLean) {
-      update = await Update.findById(updateId).lean().exec();
-    } else {
-      update = await Update.findById(updateId).exec();
+    if (!withLean) {
+      return await Update.findById(updateId).exec();
     }
-    return update;
+    return await Update.findById(updateId).lean().exec();
   } catch (error) {
     throw error;
   }
@@ -46,12 +42,11 @@ export const findUpdate = async function (updateId, withLean = false) {
  */
 export const createUpdate = async function (projectId, title, description) {
   try {
-    const update = await Update.create({
+    return await Update.create({
       project: projectId,
       title: title,
       description: description,
     });
-    return update;
   } catch (error) {
     throw error;
   }
