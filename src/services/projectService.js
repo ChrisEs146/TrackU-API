@@ -17,8 +17,7 @@ export const isValidMongooseId = function (id) {
  */
 export const findProjects = async function (userId) {
   try {
-    const projects = await Project.find({ user: userId }).lean().exec();
-    return projects;
+    return await Project.find({ user: userId }).lean().exec();
   } catch (error) {
     throw error;
   }
@@ -33,13 +32,10 @@ export const findProjects = async function (userId) {
  */
 export const findProject = async function (projectId, withLean = false) {
   try {
-    let project;
-    if (withLean) {
-      project = await Project.findById(projectId).lean().exec();
-    } else {
-      project = await Project.findById(projectId).exec();
+    if (!withLean) {
+      return await Project.findById(projectId).exec();
     }
-    return project;
+    return await Project.findById(projectId).lean().exec();
   } catch (error) {
     throw error;
   }
@@ -54,8 +50,7 @@ export const findProject = async function (projectId, withLean = false) {
  */
 export const createProject = async function (userId, title, description) {
   try {
-    const project = await Project.create({ user: userId, title, description });
-    return project;
+    return await Project.create({ user: userId, title, description });
   } catch (error) {
     throw error;
   }

@@ -8,15 +8,12 @@ import User from "../models/user.js";
  * @param {mongoose.Types.ObjectId} userId
  * @returns User
  */
-export const findUser = async function (email, userId = undefined) {
+export const findUser = async function (email, userId = null) {
   try {
-    let possibleUser;
-    if (userId) {
-      possibleUser = await User.findById(userId).exec();
-    } else {
-      possibleUser = await User.findOne({ email: email.toLowerCase() }).exec();
+    if (!userId) {
+      return await User.findOne({ email: email.toLowerCase() }).exec();
     }
-    return possibleUser;
+    return await User.findById(userId).exec();
   } catch (error) {
     throw error;
   }
@@ -30,8 +27,7 @@ export const findUser = async function (email, userId = undefined) {
  */
 export const isValidPassword = async function (password, userPassword) {
   try {
-    const validPassword = await bcrypt.compare(password, userPassword);
-    return validPassword;
+    return await bcrypt.compare(password, userPassword);
   } catch (error) {
     throw error;
   }
@@ -46,8 +42,7 @@ export const isValidPassword = async function (password, userPassword) {
  */
 export const createUser = async function (fullName, email, password) {
   try {
-    const createdUser = await User.create({ fullName, email, password });
-    return createdUser;
+    return await User.create({ fullName, email, password });
   } catch (error) {
     throw error;
   }
