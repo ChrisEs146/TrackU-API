@@ -1,5 +1,4 @@
 import jwt from "jsonwebtoken";
-import User from "../models/user.js";
 import { findUser } from "../services/userService.js";
 
 export const auth = (req, res, next) => {
