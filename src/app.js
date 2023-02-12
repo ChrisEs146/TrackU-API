@@ -10,6 +10,7 @@ import { errorHandler } from "./middleware/error.js";
 import { connectionDB } from "./DBconnection/connection.js";
 import { specs } from "./utils/swagger.js";
 import { corsOptions } from "./utils/corsOptions.js";
+import { limiter } from "./middleware/rateLimit.js";
 
 const app = express();
 connectionDB();
@@ -19,6 +20,7 @@ app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(express.json({ limit: "30mb", extended: true }));
 
+app.use(limiter);
 app.use("/users", userRoutes);
 app.use("/projects", projectRoutes);
 app.use("/updates", updateRoutes);
