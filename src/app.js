@@ -5,6 +5,7 @@ import swaggerUi from "swagger-ui-express";
 import userRoutes from "./routes/users.js";
 import projectRoutes from "./routes/projects.js";
 import updateRoutes from "./routes/updates.js";
+import helmet from "helmet";
 import { errorHandler } from "./middleware/error.js";
 import { connectionDB } from "./DBconnection/connection.js";
 import { specs } from "./utils/swagger.js";
@@ -13,6 +14,7 @@ import { corsOptions } from "./utils/corsOptions.js";
 const app = express();
 connectionDB();
 
+app.use(helmet());
 app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(express.json({ limit: "30mb", extended: true }));
