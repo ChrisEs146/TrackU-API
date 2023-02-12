@@ -25,7 +25,7 @@ app.use("/users", userRoutes);
 app.use("/projects", projectRoutes);
 app.use("/updates", updateRoutes);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
-app.get("/", (req, res) => res.send("Please, access the documentation at /api-docs"));
+app.get("/", (req, res) => res.redirect("/api-docs"));
 
 app.use(errorHandler);
 
