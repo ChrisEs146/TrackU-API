@@ -1,6 +1,6 @@
 ## TrackU API
 
-The API was created using Node js, Express and MongoDb with Mongoose. Feel free to check the [documentation](https://tracku-api.cyclic.app/api-docs/) and give it a try.
+The API was created using Node js, Express and MongoDb with Mongoose.
 
 It allows users to create an account and perform a set of actions like signing in, updating the username, changing the password and deleting the account.
 
